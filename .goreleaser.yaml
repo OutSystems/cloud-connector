@@ -1,0 +1,31 @@
+project_name: outsystemscc
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./...
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux       
+dockers: 
+  - image_templates: ["outsystems/{{ .ProjectName }}:{{ .Version }}"]
+    build_flag_templates:
+    - --platform=linux/amd64
+    - --label=org.opencontainers.image.title=OutSystems Cloud Connector
+    - --label=org.opencontainers.image.description=OutSystems Cloud Connector
+    - --label=org.opencontainers.image.url=https://github.com/outsystems/cloud-connector
+    - --label=org.opencontainers.image.source=https://github.com/outsystems/cloud-connector
+    - --label=org.opencontainers.image.version={{ .Version }}
+    - --label=org.opencontainers.image.created={{ .Date }}
+    - --label=org.opencontainers.image.revision={{ .FullCommit }}
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
