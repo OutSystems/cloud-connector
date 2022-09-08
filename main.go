@@ -98,7 +98,7 @@ var clientHelp = `
             or: socks://admin:password@my-server.com:1080
 
     --header, Set a custom header in the form "HeaderName: HeaderContent". 
-	Specify the Token displayed on the Portal in using token as HeaderName.
+	Use the Token displayed on the Portal in using token as HeaderName.
 
     --hostname, Optionally set the 'Host' header (defaults to the host
     found in the server url).

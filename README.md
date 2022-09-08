@@ -133,7 +133,7 @@ You should keep remaining options as the default unless your network topology re
             or: socks://admin:password@my-server.com:1080
 
     --header, Set a custom header in the form "HeaderName: HeaderContent". 
-    Specify the Token displayed on the Portal in using token as HeaderName.
+    Use the Token displayed on the Portal in using token as HeaderName.
 	
     --hostname, Optionally set the 'Host' header (defaults to the host
     found in the server url).
@@ -148,9 +148,6 @@ You should keep remaining options as the default unless your network topology re
     The outsystemscc process is listening for:
       a SIGUSR2 to print process stats, and
       a SIGHUP to short-circuit the client reconnect timer
-
-  Version:
-    ` + version + ` (` + runtime.Version() + `)
 ```
 
 ## License
