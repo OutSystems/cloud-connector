@@ -2,11 +2,9 @@
 
 The OutSystems Cloud Connector (`outsystemscc`) lets you connect the applications running in your OutSystems [Project Neo](https://www.outsystems.com/platform/project-neo/) organization to private data and private services  ("endpoints") that are not accessible by the internet. `outsystemscc` is an open-source project written in Go.
 
-You run `outsystemscc` on a system in your private network—an on-premises network, a private cloud, or the public cloud—to establish a secure tunnel between your endpoints and the Secure Gateway. Your applications can then access the endpoints through the Secure Gateway, the server component you activate for each stage of your Project Neo organization [using the Portal](https://outsystemsrd.atlassian.net/browse/TK-6271).
+You run `outsystemscc` on a system in your private network—an on-premises network, a private cloud, or the public cloud—to establish a secure tunnel between your endpoints and the Secure Gateway. Your applications can then access the endpoints through the Secure Gateway, the server component you activate for each stage of your Project Neo organization [using the Portal](https://outsystemsrd.atlassian.net/browse/TK-6271). Common use cases include accessing data through a private REST API service and making requests to internal services (SMTP, SMB, NFS,..)
 
 `outsystemscc` creates a fast TCP/UDP tunnel, with transport over HTTP via WebSockets, secured via SSH. The connection is established to either the built-in domain for the stage (for example `<customername>.outsystems.app`) or a custom domain configured for the stage (for example `example.com`). In both cases, the connection is over TLS and always encrypted with a valid X.509 certificate.
-
-You can use `outsystemscc` to create a tunnel to any endpoints that support connection over TCP or UDP. Common use cases include accessing data through a private REST API service and making requests to internal services (SMTP, SMB, NFS,..)
 
 The following diagram shows an example Project Neo customer setup for a Secure Gateway active on two stages.
 
