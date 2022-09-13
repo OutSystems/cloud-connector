@@ -1,18 +1,18 @@
 # OutSystems Cloud Connector
 
-The OutSystems Cloud Connector (`outsystemscc`) lets you connect the applications running in your OutSystems [Project Neo](https://www.outsystems.com/platform/project-neo/) organization to private data and private services that are not accessible by the internet. `outsystemscc` is an open-source project written in Go.
+The OutSystems Cloud Connector (`outsystemscc`) lets you connect the applications running in your OutSystems [Project Neo](https://www.outsystems.com/platform/project-neo/) organization to private data and private services  ("endpoints") that are not accessible by the internet. `outsystemscc` is an open-source project written in Go.
 
-You run `outsystemscc` on a system in your private network—an on-premises network, a private cloud, or the public cloud—to establish a secure tunnel between your private data and private services (“endpoints”) and the Secure Gateway. Your applications can then access the endpoints through the Secure Gateway, the server component you activate for each stage of your Project Neo organization [using the Portal](https://outsystemsrd.atlassian.net/browse/TK-6271).
+You run `outsystemscc` on a system in your private network—an on-premises network, a private cloud, or the public cloud—to establish a secure tunnel between your endpoints and the Secure Gateway. Your applications can then access the endpoints through the Secure Gateway, the server component you activate for each stage of your Project Neo organization [using the Portal](https://outsystemsrd.atlassian.net/browse/TK-6271).
 
-`outsystemscc` creates a fast TCP/UDP tunnel, with transport over HTTP via WebSockets, secured via SSH. The connection is established to either the built-in domain for the stage (for example `<customername>.outsystems.app`) or a custom domain configured for the stage (for example `www.example.com`). In both cases, the connection is over TLS and always encrypted with a valid X.509 certificate.
+`outsystemscc` creates a fast TCP/UDP tunnel, with transport over HTTP via WebSockets, secured via SSH. The connection is established to either the built-in domain for the stage (for example `<customername>.outsystems.app`) or a custom domain configured for the stage (for example `example.com`). In both cases, the connection is over TLS and always encrypted with a valid X.509 certificate.
 
-You can tunnel any endpoint that supports connection over TCP. Common use cases include accessing data through a private REST API service and making requests to internal services (SMTP, SMB, NFS,..)
+You can use `outsystemscc` to create a tunnel to any endpoints that support connection over TCP or UDP. Common use cases include accessing data through a private REST API service and making requests to internal services (SMTP, SMB, NFS,..)
 
 The following diagram shows an example Project Neo customer setup for a Secure Gateway active on two stages.
 
 ![Secure gateways diagram](images/secure-gateways-diag.png "Secure gateways diagram")
 
-You see how to configure the example connection to the Production stage in the **Usage** section below.
+You see how to create a tunnel to the endpoints as in the example customer on-premises data center in the **Usage** section below.
 
 ## Install
 
@@ -20,11 +20,11 @@ You see how to configure the example connection to the Production stage in the *
 
 Download the latest release from the [releases page](https://github.com/OutSystems/cloud-connector/releases/latest). There are precompiled binaries available for Linux on i386 (32-bit), amd64 (64-bit), and arm64 (64-bit). You can run the binary on a Windows version that supports [WSL2](https://docs.microsoft.com/en-us/windows/wsl/).
 
-To install, unzip/untar the package and then copy the executable to the desired location. For example:
+To install, unzip/untar the package and then copy the binary to the desired location. For example:
 
-    tar -xzf outsystemscc_1.0.0_linux_amd64.tar.gz
-    mv outsystemscc /usr/local/bin
-    ./outsystemscc --help
+    tar -zxvf outsystemscc_1.0.0_linux_amd64.tar.gz
+    mv outsystemscc $HOME/.local/bin
+    outsystemscc --help
 
 You may want to configure the binary to run as a service so it can be configured to start on system boot, for example. See the documentation of your Linux distribution for detail on how to do this.
 
@@ -36,15 +36,22 @@ Run the Docker image directly from the OutSystems Docker Hub page:
 
     docker run --rm -it outsystems/outsystemscc --help
 
+If your system supports it, there are several advantages of running `outsystemscc` as a Docker image as opposed to a binary.
+
+* You always run the latest release. You don't need to reinstall each new release.
+* It can be run on Windows or any system that supports Docker.
+* Without additional configuration it will start with the Docker daemon on system boot.
+* For advanced use cases, it can be orchestrated with Kubernetes.
+
 ### Firewall setup
 
 `outsystemscc` requires only outbound access to the internet in the private network it is running.
 
-Outbound internet connectivity (via a NAT Gateway, for example) can be restricted by a firewall. For a Layer 7 firewall, you should allowlist outbound connections to the built-in domain (for example `<customername>.outsystems.app`) and any custom domains configured for the stage (for example `www.example.com`). For a Layer 4 firewall, you must open firewall rules to all [CloudFront IP ranges](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/LocationsOfEdgeServers.html) for port 443.
+Outbound internet connectivity (via a NAT Gateway, for example) can be restricted by a firewall. For a Layer 7 firewall, you should allow outbound connections to the built-in domain (for example `<customername>.outsystems.app`) and any custom domains configured for the stage (for example `example.com`). For a Layer 4 firewall, you must open firewall rules to all [CloudFront IP ranges](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/LocationsOfEdgeServers.html) for port 443.
 
 If the network requires outbound traffic to be routed through a proxy, you specify that using the `--proxy` option.
 
-There may be a dedicated person or team at your organization responsible for administering the network firewalls. If so, you may want to contact them for help with the process.
+There may be a dedicated person or team at your organization responsible for administering network firewalls. If so, you may want to contact them for help with the process.
 
 ## Usage
 
@@ -61,20 +68,20 @@ You use the **Token** and **Address** to form the `outsystemscc` command to be r
       https://acme.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
       R:8081:192.168.0.3:8393
 
-In this example, you tunnel the endpoint `192.168.0.3:8393`, a REST API service running on IP address `192.168.0.3`. The endpoint is available to consume by applications running in the connected stage at `secure-gateway:8081`.
+In this example, you create a tunnel to the endpoint `192.168.0.3:8393`, a REST API service (HTTP/TCP) running on IP address `192.168.0.3`. The endpoint is available to consume by applications running in the connected stage at `secure-gateway:8081`.
 
-You can tunnel multiple endpoints to the same Secure Gateway. To do this, you can run multiple instances of `outsystemscc` or pass in multiple remotes (`R:<local-port>:<remote-host>:<remote-port>`) to the same instance. In the latter case, for example:
+You can create a tunnel to connect multiple endpoints to the same Secure Gateway. To do this, you can run multiple instances of `outsystemscc` or pass in multiple remotes (`R:<local-port>:<remote-host>:<remote-port>`) to the same instance. In the latter case, for example:
 
     outsystemscc \
       --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
       https://acme.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
       R:8081:192.168.0.3:8393 R:8082:192.168.0.4:587
 
-In this example, you tunnel two endpoints. One, as before, `192.168.0.3:8393`, a REST API service running on IP address `192.168.0.3`. The endpoint is available for use by applications running in the connected stage at `secure-gateway:8081`. Second, `192.168.0.4:587`, an SMTP server running on `192.168.0.4`, another IP in the internal address range. The endpoint is available for use by applications running in the connected stage at `secure-gateway:8082`.
+In this example, you create a tunnel to connect two endpoints. One, as before, `192.168.0.3:8393`, a REST API service (HTTP/TCP) running on IP address `192.168.0.3`. The endpoint is available for use by applications running in the connected stage at `secure-gateway:8081`. Second, `192.168.0.4:587`, an SMTP server (SMTP/TCP) running on `192.168.0.4`, another IP in the internal address range. The endpoint is available for use by applications running in the connected stage at `secure-gateway:8082`.
 
-You can tunnel any endpoint that is in the internal address range and so network accessible from the system you run `outsystemscc` on.
+You can create a tunnel to any endpoint that is in the internal address range and so network accessible over TCP or UDP from the system you run `outsystemscc` on. If the connection is over UDP, add `/udp` to the end of the remote port.
 
-You can learn more about using private endpoints in your applications on the [Project Neo documentation site](https://outsystemsrd.atlassian.net/browse/TK-6271).
+You can learn more about using connected endpoints in your applications on the [Project Neo documentation site](https://outsystemsrd.atlassian.net/browse/TK-6271).
 
 ### Logging
 

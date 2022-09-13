@@ -72,8 +72,8 @@ var clientHelp = `
 
     example remotes
 
-	  R:8081:192.168.0.3:8393
-      R:8082:192.168.0.4:587
+      R:8081:192.168.0.3:8393
+	  R:8082:192.168.0.4:587
 
     See https://github.com/OutSystems/cloud-connector for  examples in context.
     
