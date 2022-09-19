@@ -2,7 +2,7 @@
 
 The OutSystems Cloud Connector (`outsystemscc`) lets you connect the applications running in your OutSystems [Project Neo](https://www.outsystems.com/platform/project-neo/) organization to private data and private services  ("endpoints") that are not accessible by the internet. `outsystemscc` is an open-source project written in Go.
 
-You run `outsystemscc` on a system in your private network—an on-premises network, a private cloud, or the public cloud—to establish a secure tunnel between your endpoints and the Secure Gateway. Your applications can then access the endpoints through the Secure Gateway, the server component you activate for each stage of your Project Neo organization [using the Portal](https://outsystemsrd.atlassian.net/browse/TK-6271). Common use cases include accessing data through a private REST API service and making requests to internal services (SMTP, SMB, NFS,..)
+You run `outsystemscc` on a system in your private network—an on-premises network, a private cloud, or the public cloud—to establish a secure tunnel between your endpoints and the Secure Gateway. Your applications can then access the endpoints through the Secure Gateway, the server component you activate for each stage of your Project Neo organization [using the Portal](https://www.outsystems.com/goto/secure-gateways). Common use cases include accessing data through a private REST API service and making requests to internal services (SMTP, SMB, NFS,..)
 
 `outsystemscc` creates a fast TCP/UDP tunnel, with transport over HTTP via WebSockets, secured via SSH. The connection is established to either the built-in domain for the stage (for example `<customername>.outsystems.app`) or a custom domain configured for the stage (for example `example.com`). In both cases, the connection is over TLS and always encrypted with a valid X.509 certificate.
 
@@ -87,7 +87,7 @@ In this example, you create a tunnel to connect two endpoints. One, as before, `
 
 You can create a tunnel to any endpoint that's in the internal address range and so network accessible over TCP or UDP from the system you run `outsystemscc` on. If the connection is over UDP, add `/udp` to the end of the remote port.
 
-You or can learn more about using connected endpoints in application development on the [Project Neo documentation site](https://outsystemsrd.atlassian.net/browse/TK-6271). Be sure to share the list of connected endpoint(s) of the form `secure-gateway:<port>` with members of your team responsible developing applications in Service Studio.
+You or can learn more about using connected endpoints in application development on the [Project Neo documentation site](https://www.outsystems.com/goto/secure-gateways). Be sure to share the list of connected endpoint(s) of the form `secure-gateway:<port>` with members of your team responsible developing applications in Service Studio.
 
 ### Logging
 
