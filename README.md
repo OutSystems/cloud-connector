@@ -10,9 +10,22 @@ The following diagram shows an example Project Neo customer setup for a Secure G
 
 ![Secure gateways diagram](images/secure-gateways-diag.png "Secure gateways diagram")
 
-You see how to create a tunnel to the endpoints as in the example customer on-premises data center in the **Usage** section below.
+You see how to create a tunnel to the endpoints as in the example private customer on-premises data center in the **Usage** section below.
 
 ## Install
+
+To install, use either the binary or Docker option. If your system supports it, there are several advantages of running `outsystemscc` as a Docker image as opposed to a binary.
+
+* You always run the latest release. You don't need to reinstall each new release.
+* It can be run on Windows or any system that supports Docker.
+* Without additional configuration it will start with the Docker daemon on system boot.
+* For advanced use cases, it can be orchestrated with Kubernetes.
+
+<div class="info" markdown="1">
+
+After install, ensure the firewall for the private network(s) is configured correctly. Find guidance in the **Firewall setup** section below.
+
+</div>
 
 ### Binary
 
@@ -34,16 +47,9 @@ Run the Docker image directly from the OutSystems Docker Hub page:
 
     docker run --rm -it outsystems/outsystemscc --help
 
-If your system supports it, there are several advantages of running `outsystemscc` as a Docker image as opposed to a binary.
-
-* You always run the latest release. You don't need to reinstall each new release.
-* It can be run on Windows or any system that supports Docker.
-* Without additional configuration it will start with the Docker daemon on system boot.
-* For advanced use cases, it can be orchestrated with Kubernetes.
-
 ### Firewall setup
 
-`outsystemscc` requires only outbound access to the internet in the private network it is running.
+`outsystemscc` requires only outbound access to the internet in the private network(s) it is running.
 
 Outbound internet connectivity (via a NAT Gateway, for example) can be restricted by a firewall. For a Layer 7 firewall, you should allow outbound connections to the built-in domain (for example `<customername>.outsystems.app`) and any custom domains configured for the stage (for example `example.com`). For a Layer 4 firewall, you must open firewall rules to all [CloudFront IP ranges](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/LocationsOfEdgeServers.html) for port 443.
 
@@ -55,7 +61,9 @@ There may be a dedicated person or team at your organization responsible for adm
 
 The examples below use the binary command, `outsystemscc`. If you are using Docker, replace the command with `docker run --rm -it outsystems/outsystemscc`.
 
-After you successfully activate the Secure Gateway for a stage in the Project Neo Portal, you see the following screen:
+After using `outsystemscc` to connect one or more endpoints, you have a list of connected endpoint(s) of the form `secure-gateway:<port>`. You or a member of your team can then use these addresses directly in application development.
+
+After you successfully activate the Secure Gateway for a stage in the Portal Project Neo, you see the following screen:
 
 ![Secure gateways in Portal](images/secure-gateways-pl.png "Secure gateways in Portal")
 
@@ -79,7 +87,7 @@ In this example, you create a tunnel to connect two endpoints. One, as before, `
 
 You can create a tunnel to any endpoint that is in the internal address range and so network accessible over TCP or UDP from the system you run `outsystemscc` on. If the connection is over UDP, add `/udp` to the end of the remote port.
 
-You can learn more about using connected endpoints in your applications on the [Project Neo documentation site](https://outsystemsrd.atlassian.net/browse/TK-6271).
+You or can learn more about using connected endpoints in application development on the [Project Neo documentation site](https://outsystemsrd.atlassian.net/browse/TK-6271). Be sure to share the list of connected endpoint(s) of the form `secure-gateway:<port>` with members of your team responsible for application development.
 
 ### Logging
 
