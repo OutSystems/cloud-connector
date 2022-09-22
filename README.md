@@ -43,7 +43,7 @@ To install, use either the binary or Docker option. If your system supports it, 
 * Without additional configuration it starts with the Docker daemon on system boot.
 * For advanced use cases, you can use Kubernetes for orchestration.
 
-> :information_source: After install, ensure you configure the firewall for the private network(s) correctly. Find guidance in the [Firewall setup](#firewall-setup) section.
+After install, ensure you configure the firewall for the private network(s) correctly. Find guidance in the [Firewall setup](#firewall-setup) section.
 
 ### <a name="binary"></a> Binary
 
