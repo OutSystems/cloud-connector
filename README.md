@@ -1,6 +1,24 @@
-# OutSystems Cloud Connector
+<h1 align="center">
+<img src="images/neo-logo.png" />
 
-The OutSystems Cloud Connector (`outsystemscc`) lets you connect the apps running in your OutSystems [Project Neo](https://www.outsystems.com/platform/project-neo/) organization to private data and private services  ("endpoints") that are not accessible by the internet. `outsystemscc` is an open-source project written in Go.
+OutSystems Cloud Connector
+</h2>
+
+![MIT][s0]
+
+[s0]: https://img.shields.io/badge/license-MIT-blue.svg
+
+## <a name="table-of-contents"></a> Table of Contents
+
+1. [Overview](#overview)
+1. [Install](#install)
+1. [Usage](#usage)
+1. [Detailed options](#detailed-options)
+1. [License](#license)
+
+## 1. <a name="overview"></a> Overview <small><sup>[Top ▲](#table-of-contents)</sup></small>
+
+The OutSystems Cloud Connector (`outsystemscc`) lets you connect the apps running in your OutSystems [Project Neo](https://www.outsystems.com/platform/project-neo/) organization to private data and private services  ("endpoints") that aren't accessible by the internet. `outsystemscc` is an open-source project written in Go.
 
 You run `outsystemscc` on a system in your private network—an on-premises network, a private cloud, or the public cloud—to establish a secure tunnel between your endpoints and the Secure Gateway. Your apps can then access the endpoints through the Secure Gateway, the server component you activate for each stage of your Project Neo organization [using the Portal](https://www.outsystems.com/goto/secure-gateways). Common use cases include accessing data through a private REST API service and making requests to internal services (SMTP, SMB, NFS,..)
 
@@ -12,7 +30,7 @@ The following diagram shows an example Project Neo customer setup for a Secure G
 
 You see how to create a tunnel to the endpoints as in the example private customer on-premises data center in the **Usage** section below.
 
-## Install
+## 2. <a name="install"></a> Install <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
 To install, use either the binary or Docker option. If your system supports it, there are several advantages of running `outsystemscc` as a Docker image as opposed to a binary.
 
@@ -57,7 +75,7 @@ If the network requires outbound traffic to route through a proxy, you specify t
 
 There may be a dedicated person or team at your organization responsible for administering network firewalls. If so, you may want to contact them for help with the process.
 
-## Usage
+## 3. <a name="usage"></a> Usage <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
 The examples below use the binary command, `outsystemscc`. If you are using Docker, replace the command with `docker run --rm -it outsystems/outsystemscc`.
 
@@ -101,7 +119,8 @@ By default, `outsystemscc` logs timestamped information to stdout. You can redir
 
 If your organization uses a centralized log management product, see its documentation for how to redirect the log output into it.
 
-## Detailed options
+## 4. <a name="detailed-options"></a> Detailed options <small><sup>[Top ▲](#table-of-contents)</sup></small>
+
 
 You should keep remaining options as the default unless your network topology requires you to modify them.
 
@@ -163,6 +182,6 @@ You should keep remaining options as the default unless your network topology re
       a SIGHUP to short-circuit the client reconnect timer
 ```
 
-## License
+## 5. <a name="license"></a> License <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
 [MIT](https://github.com/outsystems/cloud-connector/blob/master/LICENSE) © OutSystems
