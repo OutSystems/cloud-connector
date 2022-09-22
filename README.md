@@ -12,7 +12,11 @@ OutSystems Cloud Connector
 
 1. [Overview](#overview)
 1. [Install](#install)
+    * [Binary](#binary)
+    * [Docker](#docker)
+    * [Firewall setup](#firewall-setup)
 1. [Usage](#usage)
+    * [Logging](#logging)
 1. [Detailed options](#detailed-options)
 1. [License](#license)
 
@@ -28,7 +32,7 @@ The following diagram shows an example Project Neo customer setup for a Secure G
 
 ![Secure gateways diagram](images/secure-gateways-diag.png "Secure gateways diagram")
 
-You see how to create a tunnel to the endpoints as in the example private customer on-premises data center in the **Usage** section below.
+You see how to create a tunnel to the endpoints as in the example private customer on-premises data center in the [Usage](#usage) section.
 
 ## 2. <a name="install"></a> Install <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
@@ -39,13 +43,9 @@ To install, use either the binary or Docker option. If your system supports it, 
 * Without additional configuration it starts with the Docker daemon on system boot.
 * For advanced use cases, you can use Kubernetes for orchestration.
 
-<div class="info" markdown="1">
+> :information_source: After install, ensure you configure the firewall for the private network(s) correctly. Find guidance in the [Firewall setup](#firewall-setup) section.
 
-After install, ensure you configure the firewall for the private network(s) correctly. Find guidance in the **Firewall setup** section below.
-
-</div>
-
-### Binary
+### <a name="binary"></a> Binary
 
 Download the latest release from the [releases page](https://github.com/OutSystems/cloud-connector/releases/latest). There are precompiled binaries available for Linux on i386 (32-bit), amd64 (64-bit), and arm64 (64-bit). You can run the binary on a Windows version that supports [WSL2](https://docs.microsoft.com/en-us/windows/wsl/).
 
@@ -59,13 +59,13 @@ You may want to configure the binary to run as a service so it can start on syst
 
 `outsystemscc` doesn't require root permissions to run.
 
-### Docker
+### <a name="binary"></a> Docker
 
 Run the Docker image directly from the OutSystems Docker Hub page:
 
     docker run --rm -it outsystems/outsystemscc --help
 
-### Firewall setup
+### <a name="binary"></a> Firewall setup
 
 `outsystemscc` requires only outbound access to the internet in the private network(s) it's running.
 
@@ -73,7 +73,7 @@ You can restrict outbound internet connectivity (via a NAT Gateway, for example)
 
 If the network requires outbound traffic to route through a proxy, you specify that using the `--proxy` option.
 
-There may be a dedicated person or team at your organization responsible for administering network firewalls. If so, you may want to contact them for help with the process.
+> :information_source: There may be a dedicated person or team at your organization responsible for administering network firewalls. If so, you may want to contact them for help with the process.
 
 ## 3. <a name="usage"></a> Usage <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
@@ -107,7 +107,7 @@ You can create a tunnel to any endpoint that's in the internal address range and
 
 You or can learn more about using connected endpoints in app development on the [Project Neo documentation site](https://www.outsystems.com/goto/secure-gateways). Be sure to share the list of connected endpoint(s) of the form `secure-gateway:<port>` with members of your team responsible developing apps in Service Studio.
 
-### Logging
+### <a name="binary"></a> Logging
 
 By default, `outsystemscc` logs timestamped information to stdout. You can redirect this output to a file for retention purposes. For example:
 
