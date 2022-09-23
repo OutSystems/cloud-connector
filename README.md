@@ -22,32 +22,32 @@ OutSystems Cloud Connector
 
 ## 1. <a name="overview"></a> Overview <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
-The OutSystems Cloud Connector (`outsystemscc`) lets you connect the apps running in your OutSystems [Project Neo](https://www.outsystems.com/platform/project-neo/) organization to private data and private services  ("endpoints") that aren't accessible by the internet. `outsystemscc` is an open-source project written in Go.
+Using the OutSystems Cloud Connector (`outsystemscc`) you can connect the apps running in your OutSystems [Project Neo](https://www.outsystems.com/platform/project-neo/) organization to private data and private services ("endpoints") that aren't accessible by the internet. `outsystemscc` is an open-source project written in Go.
 
 You run `outsystemscc` on a system in your private network—an on-premises network, a private cloud, or the public cloud—to establish a secure tunnel between your endpoints and the Secure Gateway. Your apps can then access the endpoints through the Secure Gateway, the server component you activate for each stage of your Project Neo organization [using the Portal](https://www.outsystems.com/goto/secure-gateways). Common use cases include accessing data through a private REST API service and making requests to internal services (SMTP, SMB, NFS,..)
 
 `outsystemscc` creates a fast TCP/UDP tunnel, with transport over HTTP via WebSockets, secured via SSH. The connection is established to either the built-in domain for the stage (for example `<customername>.outsystems.app`) or a custom domain configured for the stage (for example `example.com`). In both cases, the connection is over TLS and always encrypted with a valid X.509 certificate.
 
-The following diagram shows an example Project Neo customer setup for a Secure Gateway active on two stages.
+The following diagram is an example of a Project Neo customer setup for a Secure Gateway active on two stages.
 
 ![Secure gateways diagram](images/secure-gateways-diag.png "Secure gateways diagram")
 
-You see how to create a tunnel to the endpoints as in the example private customer on-premises data center in the [Usage](#usage) section.
+You see how to create a tunnel to the endpoints as in this diagram in the [Usage](#usage) section.
 
 ## 2. <a name="install"></a> Install <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
-To install, use either the binary or Docker option. If your system supports it, there are several advantages of running `outsystemscc` as a Docker image as opposed to a binary.
+To install, use either the binary or Docker option. There are several advantages of running `outsystemscc` as a Docker image as opposed to a binary, if your system supports it:
 
 * You always run the latest release. You don't need to reinstall each new release.
-* It can run on Windows or any system that supports Docker.
-* Without additional configuration it starts with the Docker daemon on system boot.
+* `outsystemscc` can run on Windows or any system that supports Docker.
+* Without additional configuration `outsystemscc` starts with the Docker daemon on system boot.
 * For advanced use cases, you can use Kubernetes for orchestration.
 
-After install, ensure you configure the firewall for the private network(s) correctly. Find guidance in the [Firewall setup](#firewall-setup) section.
+After install, ensure you configure the firewall for the private network(s) correctly. For more information, see [Firewall setup](#firewall-setup) section.
 
 ### <a name="binary"></a> Binary
 
-Download the latest release from the [releases page](https://github.com/OutSystems/cloud-connector/releases/latest). There are precompiled binaries available for Linux on i386 (32-bit), amd64 (64-bit), and arm64 (64-bit). You can run the binary on a Windows version that supports [WSL2](https://docs.microsoft.com/en-us/windows/wsl/).
+Download the latest release from the [releases page](https://github.com/OutSystems/cloud-connector/releases/latest). There are precompiled binaries available for Linux on i386 (32-bit), amd64 (64-bit), and arm64 (64-bit). You can run the binary on any Windows version that supports [WSL2](https://docs.microsoft.com/en-us/windows/wsl/).
 
 To install, unzip/untar the package and then copy the binary to the desired location. For example:
 
@@ -55,7 +55,7 @@ To install, unzip/untar the package and then copy the binary to the desired loca
     mv outsystemscc $HOME/.local/bin
     outsystemscc --help
 
-You may want to configure the binary to run as a service so it can start on system boot, for example. See the documentation of your Linux distribution for detail on how to do this.
+You may want to configure the binary to run as a service so it can start on system boot. See the documentation of your Linux distribution for detail on how to do this.
 
 `outsystemscc` doesn't require root permissions to run.
 
@@ -67,7 +67,7 @@ Run the Docker image directly from the OutSystems Docker Hub page:
 
 ### <a name="firewall-setup"></a> Firewall setup
 
-`outsystemscc` requires only outbound access to the internet in the private network(s) it's running.
+`outsystemscc` requires only outbound access to the internet in the private network(s) in which it's running.
 
 You can restrict outbound internet connectivity (via a NAT Gateway, for example) by a firewall. For a Layer 7 firewall, you should allow outbound connections to the built-in domain (for example `<customername>.outsystems.app`) and any custom domains configured for the stage (for example `example.com`). For a Layer 4 firewall, you must open firewall rules to all [CloudFront IP ranges](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/LocationsOfEdgeServers.html) for port 443.
 
@@ -80,13 +80,13 @@ If the network requires outbound traffic to route through a proxy, you specify t
 
 The examples below use the binary command, `outsystemscc`. If you are using Docker, replace the command with `docker run --rm -it outsystems/outsystemscc`.
 
-After using `outsystemscc` to connect one or more endpoints, you have a list of connected endpoint(s) of the form `secure-gateway:<port>`. You or a member of your team can then use these addresses directly in app development in Service Studio.
+After using `outsystemscc` to connect one or more endpoints, you have a list of connected endpoint(s) of the form `secure-gateway:<port>`. You or a member of your team can use these addresses directly in app development in Service Studio.
 
-After you successfully activate the Secure Gateway for a stage in the Portal Project Neo, you see the following screen:
+After successfully activating the secure gateway for a stage in the Neo Portal, the following screen displays:
 
 ![Secure gateways in Portal](images/secure-gateways-pl.png "Secure gateways in Portal")
 
-You use the **Token** and **Address** to form the `outsystemscc` command to run. For example:
+Use the **Token** and **Address** to form the `outsystemscc` command to run. For example:
 
     outsystemscc \
       --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
@@ -95,18 +95,18 @@ You use the **Token** and **Address** to form the `outsystemscc` command to run.
 
 In this example, you create a tunnel to the endpoint `192.168.0.3:8393`, a REST API service (HTTP/TCP) running on IP address `192.168.0.3`. The endpoint is available to consume by apps running in the connected stage at `secure-gateway:8081`.
 
-You can create a tunnel to connect multiple endpoints to the same Secure Gateway. To do this, you can run multiple instances of `outsystemscc` or pass in multiple remotes (`R:<local-port>:<remote-host>:<remote-port>`) to the same instance. In the latter case, for example:
+You can create a tunnel to connect multiple endpoints to the same Secure Gateway. To do this, run multiple instances of `outsystemscc` or pass in multiple remotes (`R:<local-port>:<remote-host>:<remote-port>`) to the same instance. In the latter case, for example:
 
     outsystemscc \
       --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
       https://acme.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
       R:8081:192.168.0.3:8393 R:8082:192.168.0.4:587
 
-In this example, you create a tunnel to connect two endpoints. One, as before, `192.168.0.3:8393`, a REST API service (HTTP/TCP) running on IP address `192.168.0.3`. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8081`. Second, `192.168.0.4:587`, an SMTP server (SMTP/TCP) running on `192.168.0.4`, another IP in the internal address range. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8082`.
+In the above example you create a tunnel to connect two endpoints. One, as before, `192.168.0.3:8393`, a REST API service (HTTP/TCP) running on IP address `192.168.0.3`. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8081`. Second, `192.168.0.4:587`, an SMTP server (SMTP/TCP) running on `192.168.0.4`, another IP in the internal address range. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8082`.
 
-You can create a tunnel to any endpoint that's in the internal address range and so network accessible over TCP or UDP from the system you run `outsystemscc` on. If the connection is over UDP, add `/udp` to the end of the remote port.
+You can create a tunnel to any endpoint that's in the internal address range and so is network accessible over TCP or UDP from the system on which `outsystemscc` is run. If the connection is over UDP, add `/udp` to the end of the remote port.
 
-You or can learn more about using connected endpoints in app development on the [Project Neo documentation site](https://www.outsystems.com/goto/secure-gateways). Be sure to share the list of connected endpoint(s) of the form `secure-gateway:<port>` with members of your team responsible developing apps in Service Studio.
+To learn more about using connected endpoints in app development go to the [Project Neo documentation site](https://www.outsystems.com/goto/secure-gateways). Be sure to share the list of connected endpoint(s) of the form `secure-gateway:<port>` with members of your team responsible developing apps in Service Studio.
 
 ### <a name="logging"></a> Logging
 
@@ -118,12 +118,12 @@ By default, `outsystemscc` logs timestamped information to stdout. You can redir
       R:8081:10.0.0.1:8393 \ 
       >> outsystemscc_log
 
-If your organization uses a centralized log management product, see its documentation for how to redirect the log output into it.
+If your organization uses a centralized log management product, see its documentation about how to redirect the log output.
 
 ## 4. <a name="detailed-options"></a> Detailed options <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
 
-You should keep remaining options as the default unless your network topology requires you to modify them.
+ Keep remaining options with the default unless your network topology requires you to modify them.
 
 ```
   Usage: outsystemscc [options] <server> <remote> [remote] [remote] ...
