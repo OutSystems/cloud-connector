@@ -1,5 +1,5 @@
 <h1 align="center">
-<img src="images/neo-logo.png" />
+<img src="images/cloud-connector-icon.png" />
 
 OutSystems Cloud Connector
 </h2>
