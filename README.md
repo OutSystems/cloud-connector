@@ -116,7 +116,13 @@ To learn more about using connected endpoints in app development go to the [Proj
 
 ### <a name="logging"></a> Logging
 
-By default, `outsystemscc` logs timestamped information to stdout. You can redirect this output to a file for retention purposes. For example:
+By default, `outsystemscc` logs timestamped information about the connection status and 
+latency to stdout. For example:
+
+    2022/11/10 12:14:42 client: Connecting to ws://acme.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7:80
+    2022/11/10 12:14:42 client: Connected (Latency 733.439µs)
+
+You can redirect this output to a file for retention purposes. For example:
 
     outsystemscc \
       --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
