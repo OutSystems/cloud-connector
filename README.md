@@ -61,9 +61,9 @@ You may want to configure the binary to run as a service so it can start on syst
 
 ### <a name="docker"></a> Docker
 
-Run the Docker image directly from the OutSystems Docker Hub page:
+Run the Docker image directly from the OutSystems GitHub Container registry:
 
-    docker run --rm -it outsystems/outsystemscc --help
+    docker run --rm -it ghcr.io/outsystems/outsystemscc:latest --help
 
 ### <a name="firewall-setup"></a> Firewall setup
 
@@ -78,7 +78,7 @@ If the network requires outbound traffic to route through a proxy, you specify t
 
 ## 3. <a name="usage"></a> Usage <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
-The examples below use the binary command, `outsystemscc`. If you are using Docker, replace the command with `docker run --rm -it outsystems/outsystemscc`.
+The examples below use the binary command, `outsystemscc`. If you are using Docker, replace the command with `docker run --rm -it ghcr.io/outsystems/outsystemscc:latest`.
 
 After using `outsystemscc` to connect one or more endpoints, you have a list of connected endpoint(s) of the form `secure-gateway:<port>`. You or a member of your team can use these addresses directly in app development in Service Studio.
 
