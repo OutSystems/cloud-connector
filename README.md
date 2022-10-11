@@ -34,6 +34,8 @@ The following diagram is an example of a Project Neo customer setup for a Secure
 
 You see how to create a tunnel to the endpoints as in this diagram in the [Usage](#usage) section.
 
+To learn more about the cloud-native architecture of Project Neo go to the [Project Neo documentation site](https://success.outsystems.com/Documentation/Project_Neo/Cloud-native_architecture_of_Project_Neo).
+
 ## 2. <a name="install"></a> Install <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
 _Minimum system requirement per `outsystemscc` instance: 2 GB RAM, 2x 1GHz+ CPU._
