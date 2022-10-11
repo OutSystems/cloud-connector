@@ -36,6 +36,8 @@ You see how to create a tunnel to the endpoints as in this diagram in the [Usage
 
 ## 2. <a name="install"></a> Install <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
+_Minimum system requirement per `outsystemscc` instance: 2 GB RAM, 2x 1GHz+ CPU._
+
 To install, use either the binary or Docker option. There are several advantages of running `outsystemscc` as a Docker image as opposed to a binary, if your system supports it:
 
 * You always run the latest release. You don't need to reinstall each new release.
