@@ -1,2 +1,6 @@
-
-dist/
+styles/
+rules/
+.vs/*
+.editorconfig
+.markdownlint.json
+.vale.ini

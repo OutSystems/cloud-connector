@@ -60,7 +60,7 @@ func (flag *headerFlags) Set(arg string) error {
 var clientHelp = `
   Usage: outsystemscc [options] <server> <remote> [remote] [remote] ...
 
-  <server> is the URL to the server.
+  <server> is the URL to the server. Use the Address displayed on the Portal.
 
   <remote>s are remote connections tunneled through the server, each of
   which come in the form:
@@ -72,8 +72,10 @@ var clientHelp = `
 
     example remotes
 
-      R:2222:localhost:22
-      R:8080:10.0.0.1:80
+      R:8081:192.168.0.3:8393
+	  R:8082:192.168.0.4:587
+
+    See https://github.com/OutSystems/cloud-connector for  examples in context.
     
   Options:
 
@@ -95,8 +97,8 @@ var clientHelp = `
     For example, http://admin:password@my-server.com:8081
             or: socks://admin:password@my-server.com:1080
 
-    --header, Set a custom header in the form "HeaderName: HeaderContent".
-    Can be used multiple times. (e.g --header "Foo: Bar" --header "Hello: World")
+    --header, Set a custom header in the form "HeaderName: HeaderContent". 
+	Use the Token displayed on the Portal in using token as HeaderName.
 
     --hostname, Optionally set the 'Host' header (defaults to the host
     found in the server url).
