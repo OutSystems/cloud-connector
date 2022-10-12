@@ -10,8 +10,8 @@ builds:
       - linux       
 dockers: 
   - image_templates: 
-    - "outsystems/{{ .ProjectName }}:{{ .Version }}"
-    - "outsystems/{{ .ProjectName }}:latest"
+    - "ghcr.io/outsystems/{{ .ProjectName }}:{{ .Version }}"
+    - "ghcr.io/outsystems/{{ .ProjectName }}:latest"
     build_flag_templates:
     - --platform=linux/amd64
     - --label=org.opencontainers.image.title=OutSystems Cloud Connector
