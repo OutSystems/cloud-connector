@@ -96,7 +96,7 @@ Use the **Token** and **Address** to form the `outsystemscc` command to run. For
 
     outsystemscc \
       --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
-      https://acme.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
+      https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd \
       R:8081:192.168.0.3:8393
 
 In this example, you create a tunnel to the endpoint `192.168.0.3:8393`, a REST API service (HTTP/TCP) running on IP address `192.168.0.3`. The endpoint is available to consume by apps running in the connected stage at `secure-gateway:8081`.
@@ -105,7 +105,7 @@ You can create a tunnel to connect multiple endpoints to the same Secure Gateway
 
     outsystemscc \
       --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
-      https://acme.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
+      https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd \
       R:8081:192.168.0.3:8393 R:8082:192.168.0.4:587
 
 In the above example you create a tunnel to connect two endpoints. One, as before, `192.168.0.3:8393`, a REST API service (HTTP/TCP) running on IP address `192.168.0.3`. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8081`. Second, `192.168.0.4:587`, an SMTP server (SMTP/TCP) running on `192.168.0.4`, another IP in the internal address range. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8082`.
@@ -119,14 +119,14 @@ To learn more about using connected endpoints in app development go to the [Proj
 By default, `outsystemscc` logs timestamped information about the connection status and 
 latency to stdout. For example:
 
-    2022/11/10 12:14:42 client: Connecting to ws://acme.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7:80
+    2022/11/10 12:14:42 client: Connecting to ws://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd:80
     2022/11/10 12:14:42 client: Connected (Latency 733.439µs)
 
 You can redirect this output to a file for retention purposes. For example:
 
     outsystemscc \
       --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
-      https://acme.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
+      https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd \
       R:8081:10.0.0.1:8393 \ 
       >> outsystemscc_log
 
