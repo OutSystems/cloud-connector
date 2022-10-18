@@ -86,7 +86,7 @@ The examples below use the binary command, `outsystemscc`. If you are using Dock
 
 After using `outsystemscc` to connect one or more endpoints, you have a list of connected endpoint(s) of the form `secure-gateway:<port>`. You or a member of your team can use these addresses directly in app development in Service Studio.
 
-> :information_source: It's important that you connect only to trusted endpoints.
+> :information_source: Connecting to endpoint(s) over TLS/HTTPS is currently unsupported. It's important that you connect only to trusted endpoints.
 
 After successfully activating the secure gateway for a stage in the Neo Portal, the following screen displays:
 
