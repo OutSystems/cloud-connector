@@ -60,7 +60,7 @@ func (flag *headerFlags) Set(arg string) error {
 var clientHelp = `
   Usage: outsystemscc [options] <server> <remote> [remote] [remote] ...
 
-  <server> is the URL to the server. Use the Address displayed on the Portal.
+  <server> is the URL to the server. Use the Address displayed on ODC Portal.
 
   <remote>s are remote connections tunneled through the server, each of
   which come in the form:
@@ -98,7 +98,7 @@ var clientHelp = `
             or: socks://admin:password@my-server.com:1080
 
     --header, Set a custom header in the form "HeaderName: HeaderContent". 
-	Use the Token displayed on the Portal in using token as HeaderName.
+	Use the Token displayed on ODC Portal in using token as HeaderName.
 
     --hostname, Optionally set the 'Host' header (defaults to the host
     found in the server url).
