@@ -22,19 +22,19 @@ OutSystems Cloud Connector
 
 ## 1. <a name="overview"></a> Overview <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
-Using the OutSystems Cloud Connector (`outsystemscc`) you can connect the apps running in your OutSystems [Project Neo](https://www.outsystems.com/platform/project-neo/) organization to private data and private services ("endpoints") that aren't accessible by the internet. `outsystemscc` is an open-source project written in Go.
+Using the OutSystems Cloud Connector (`outsystemscc`) you can connect the apps running in your [OutSystems Developer Cloud (ODC)](https://www.outsystems.com/low-code-platform/developer-cloud/) organization to private data and private services ("endpoints") that aren't accessible by the internet. `outsystemscc` is an open-source project written in Go.
 
-You run `outsystemscc` on a system in your private network—an on-premise network, a private cloud, or the public cloud—to establish a secure tunnel between your endpoints and the Secure Gateway. Your apps can then access the endpoints through the Secure Gateway, the server component you activate for each stage of your Project Neo organization [using the Portal](https://www.outsystems.com/goto/secure-gateways). Common use cases include accessing data through a private REST API service and making requests to internal services (SMTP, SMB, NFS,..)
+You run `outsystemscc` on a system in your private network—an on-premise network, a private cloud, or the public cloud—to establish a secure tunnel between your endpoints and the Secure Gateway. Your apps can then access the endpoints through the Secure Gateway, the server component you activate for each stage of your ODC organization [using the ODC Portal](https://www.outsystems.com/goto/secure-gateways). Common use cases include accessing data through a private REST API service and making requests to internal services (SMTP, SMB, NFS,..)
 
 `outsystemscc` creates a fast TCP/UDP tunnel, with transport over HTTP via WebSockets, secured via SSH using ECDSA with SHA256 keys. The connection is established to either the built-in domain for the stage (for example `<customername>.outsystems.app`) or a custom domain configured for the stage (for example `example.com`). In both cases, the connection is over TLS and always encrypted with a valid X.509 certificate.
 
-The following diagram is an example of a Project Neo customer setup for a Secure Gateway active on two stages.
+The following diagram is an example of a ODC customer setup for a Secure Gateway active on two stages.
 
 ![Secure gateways diagram](images/secure-gateways-diag.png "Secure gateways diagram")
 
 You see how to create a tunnel to the endpoints as in this diagram in the [Usage](#usage) section.
 
-To learn more about the cloud-native architecture of Project Neo go to the [Project Neo documentation site](https://success.outsystems.com/Documentation/Project_Neo/Cloud-native_architecture_of_Project_Neo).
+To learn more about the cloud-native architecture of ODC go to the [ODC documentation site](https://success.outsystems.com/Documentation/Project_Neo/Cloud-native_architecture_of_OutSystems_Developer_Cloud).
 
 ## 2. <a name="install"></a> Install <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
@@ -84,13 +84,13 @@ If the network requires outbound traffic to route through a proxy, you specify t
 
 The examples below use the binary command, `outsystemscc`. If you are using Docker, replace the command with `docker run --rm -it ghcr.io/outsystems/outsystemscc:latest`.
 
-After using `outsystemscc` to connect one or more endpoints, you have a list of connected endpoint(s) of the form `secure-gateway:<port>`. You or a member of your team can use these addresses directly in app development in Service Studio.
+After using `outsystemscc` to connect one or more endpoints, you have a list of connected endpoint(s) of the form `secure-gateway:<port>`. You or a member of your team can use these addresses directly in app development in ODC Studio.
 
 > :information_source: It's important that you connect only to trusted endpoints.
 
-After successfully activating the secure gateway for a stage in the Neo Portal, the following screen displays:
+After successfully activating the secure gateway for a stage in the ODC Portal, the following screen displays:
 
-![Secure gateways in Portal](images/secure-gateways-pl.png "Secure gateways in Portal")
+![Secure gateways in ODC Portal](images/secure-gateways-pl.png "Secure gateways in ODC Portal")
 
 Use the **Token** and **Address** to form the `outsystemscc` command to run. For example:
 
@@ -112,7 +112,7 @@ In the above example you create a tunnel to connect two endpoints. One, as befor
 
 You can create a tunnel to any endpoint that's in the internal address range and so is network accessible over TCP or UDP from the system on which `outsystemscc` is run. If the connection is over UDP, add `/udp` to the end of the remote port.
 
-To learn more about using connected endpoints in app development go to the [Project Neo documentation site](https://www.outsystems.com/goto/secure-gateways). Be sure to share the list of connected endpoint(s) of the form `secure-gateway:<port>` with members of your team responsible developing apps in Service Studio.
+To learn more about using connected endpoints in app development go to the [ODC documentation site](https://www.outsystems.com/goto/secure-gateways). Be sure to share the list of connected endpoint(s) of the form `secure-gateway:<port>` with members of your team responsible developing apps in ODC Studio.
 
 ### <a name="logging"></a> Logging
 
@@ -140,7 +140,7 @@ If your organization uses a centralized log management product, see its document
 ```
   Usage: outsystemscc [options] <server> <remote> [remote] [remote] ...
 
-  <server> is the URL to the server. Use the Address displayed on the Portal.
+  <server> is the URL to the server. Use the Address displayed on ODC Portal.
 
   <remote>s are remote connections tunneled through the server, each of
   which come in the form:
@@ -178,7 +178,7 @@ If your organization uses a centralized log management product, see its document
             or: socks://admin:password@my-server.com:1080
 
     --header, Set a custom header in the form "HeaderName: HeaderContent". 
-    Use the Token displayed on the Portal in using token as HeaderName.
+    Use the Token displayed on ODC Portal in using token as HeaderName.
 	
     --hostname, Optionally set the 'Host' header (defaults to the host
     found in the server url).
