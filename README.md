@@ -30,7 +30,7 @@ You run `outsystemscc` on a system in your private network—an on-premise netwo
 
 The following diagram is an example of a Project Neo customer setup for a Secure Gateway active on two stages.
 
-![Secure gateways diagram](images/secure-gateways-diag.png "Secure gateways diagram")
+![Secure gateways diagram](images/secure-gateway-diag.png "Secure gateways diagram")
 
 You see how to create a tunnel to the endpoints as in this diagram in the [Usage](#usage) section.
 
