@@ -108,7 +108,7 @@ You can create a tunnel to connect multiple endpoints to the same Secure Gateway
       https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd \
       R:8081:192.168.0.3:8393 R:8082:192.168.0.4:587
 
-In the above example you create a tunnel to connect two endpoints. One, as before, `192.168.0.3:8393`, a REST API service running on IP address `192.168.0.3`. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8081`. Second, `192.168.0.4:587`, an SMTP server  running on `192.168.0.4`, another IP in the internal address range. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8082`.
+In the above example you create a tunnel to connect two endpoints. One, as before, `192.168.0.3:8393`, a REST API service running on IP address `192.168.0.3`. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8081`. Second, `192.168.0.4:587`, an SMTP server running on `192.168.0.4`, another IP in the internal address range. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8082`.
 
 You can create a tunnel to any endpoint that's in the internal address range and so is network accessible over TCP or UDP from the system on which `outsystemscc` is run. If the connection is over UDP, add `/udp` to the end of the remote port.
 
