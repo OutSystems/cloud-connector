@@ -92,6 +92,8 @@ After successfully activating the secure gateway for a stage in the ODC Portal, 
 
 ![Secure gateways in ODC Portal](images/secure-gateways-pl.png "Secure gateways in ODC Portal")
 
+> :information_source: Make sure to copy the token and save it in a safe location. For security reasons, you won't be able to access it again.
+
 Use the **Token** and **Address** to form the `outsystemscc` command to run. For example:
 
     outsystemscc \
