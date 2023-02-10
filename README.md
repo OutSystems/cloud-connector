@@ -86,11 +86,13 @@ The examples below use the binary command, `outsystemscc`. If you are using Dock
 
 After using `outsystemscc` to connect one or more endpoints, you have a list of connected endpoint(s) of the form `secure-gateway:<port>`. You or a member of your team can use these addresses directly in app development in ODC Studio.
 
-> :information_source: It's important that you connect only to trusted endpoints.
+> :information_source: cloud-connector supports connecting to endpoints both over TLS/SSL and without TLS/SSL. It's important that you connect only to trusted endpoints.
 
 After successfully activating the secure gateway for a stage in the ODC Portal, the following screen displays:
 
 ![Secure gateways in ODC Portal](images/secure-gateways-pl.png "Secure gateways in ODC Portal")
+
+> :information_source: Make sure to copy the Token and save it in a safe location. For security reasons, you won't be able to access it again after you close or refresh the page.
 
 Use the **Token** and **Address** to form the `outsystemscc` command to run. For example:
 
