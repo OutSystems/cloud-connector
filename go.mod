@@ -1,6 +1,6 @@
 module github.com/outsystems/cloud-connector
 
-require github.com/jpillora/chisel v1.7.7
+require github.com/jpillora/chisel v1.8.1
 
 require (
 	github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 // indirect
@@ -14,6 +14,6 @@ require (
 	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
 )
 
-replace github.com/jpillora/chisel => github.com/outsystems/chisel v1.7.7
+replace github.com/jpillora/chisel => github.com/outsystems/chisel v1.8.1
 
 go 1.18
