@@ -185,11 +185,11 @@ If your organization uses a centralized log management product, see its document
     --hostname, Optionally set the 'Host' header (defaults to the host
     found in the server url).
 
-	--pid, Generate pid file 'outsystemscc.pid' in current working directory.
-	Synonymous to --pidpath .
+    --pid, Generate pid file 'outsystemscc.pid' in current working directory.
+    Synonymous to --pidpath .
 
-	--pidpath, Generate pid file at a specific destination.
-	Set either path to a file, or a path to a directory.
+    --pidpath, Generate pid file at a specific destination.
+    Set either path to a file, or a path to a directory.
 
     -v, Enable verbose logging
 
