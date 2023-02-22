@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -24,9 +25,21 @@ func main() {
 	client(os.Args[1:])
 }
 
-func generatePidFile() {
+func generatePidFile(path string) {
 	pid := []byte(strconv.Itoa(os.Getpid()))
-	if err := ioutil.WriteFile("outsystemscc.pid", pid, 0644); err != nil {
+
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			log.Fatal(err)
+		}
+	} else {
+		if fileInfo.IsDir() {
+			path = filepath.Join(path, "outsystemscc.pid")
+		}
+	}
+
+	if err := ioutil.WriteFile(path, pid, 0644); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -103,7 +116,11 @@ var clientHelp = `
     --hostname, Optionally set the 'Host' header (defaults to the host
     found in the server url).
 
-	--pid Generate pid file in current working directory
+	--pid, Generate pid file 'outsystemscc.pid' in current working directory.
+	Synonymous to --pidpath .
+
+	--pidpath, Generate pid file at a specific destination.
+	Set either path to a file, or a path to a directory.
 
     -v, Enable verbose logging
 
@@ -128,6 +145,7 @@ func client(args []string) {
 	flags.Var(&headerFlags{config.Headers}, "header", "")
 	hostname := flags.String("hostname", "", "")
 	pid := flags.Bool("pid", false, "")
+	pidpath := flags.String("pidpath", "", "")
 	verbose := flags.Bool("v", false, "")
 	flags.Usage = func() {
 		fmt.Print(clientHelp)
@@ -155,8 +173,10 @@ func client(args []string) {
 		log.Fatal(err)
 	}
 	c.Debug = *verbose
-	if *pid {
-		generatePidFile()
+	if *pidpath != "" {
+		generatePidFile(*pidpath)
+	} else if *pid {
+		generatePidFile(".")
 	}
 	go cos.GoStats()
 	ctx := cos.InterruptContext()
