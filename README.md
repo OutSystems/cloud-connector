@@ -24,13 +24,13 @@ OutSystems Cloud Connector
 
 Using the OutSystems Cloud Connector (`outsystemscc`) you can connect the apps running in your [OutSystems Developer Cloud (ODC)](https://www.outsystems.com/low-code-platform/developer-cloud/) organization to private data and private services ("endpoints") that aren't accessible by the internet. `outsystemscc` is an open-source project written in Go.
 
-You run `outsystemscc` on a system in your private network—an on-premise network, a private cloud, or the public cloud—to establish a secure tunnel between your endpoints and the Secure Gateway. Your apps can then access the endpoints through the Secure Gateway, the server component you activate for each stage of your ODC organization [using the ODC Portal](https://www.outsystems.com/goto/secure-gateways). Common use cases include accessing data through a private REST API service and making requests to internal services (SMTP, SMB, NFS,..)
+You run `outsystemscc` on a system in your private network—an on-premise network, a private cloud, or the public cloud—to establish a secure tunnel between your endpoints and the Private Gateway. Your apps can then access the endpoints through the Private Gateway, the server component you activate for each stage of your ODC organization [using the ODC Portal](https://www.outsystems.com/goto/secure-gateways). Common use cases include accessing data through a private REST API service and making requests to internal services (SMTP, SMB, NFS,..)
 
 `outsystemscc` creates a fast TCP/UDP tunnel, with transport over HTTP via WebSockets, secured via SSH using ECDSA with SHA256 keys. The connection is established to either the built-in domain for the stage (for example `<customername>.outsystems.app`) or a custom domain configured for the stage (for example `example.com`). In both cases, the connection is over TLS and always encrypted with a valid X.509 certificate.
 
-The following diagram is an example of a ODC customer setup for a Secure Gateway active on two stages.
+The following diagram is an example of a ODC customer setup for a Private Gateway active on two stages.
 
-![Secure gateways diagram](images/secure-gateways-diag.png "Secure gateways diagram")
+![Private gateways diagram](images/private-gateways-diag.png "Private gateways diagram")
 
 You see how to create a tunnel to the endpoints as in this diagram in the [Usage](#usage) section.
 
@@ -88,9 +88,9 @@ After using `outsystemscc` to connect one or more endpoints, you have a list of 
 
 > :information_source: cloud-connector supports connecting to endpoints both over TLS/SSL and without TLS/SSL. It's important that you connect only to trusted endpoints.
 
-After successfully activating the secure gateway for a stage in the ODC Portal, the following screen displays:
+After successfully activating the private gateway for a stage in the ODC Portal, the following screen displays:
 
-![Secure gateways in ODC Portal](images/secure-gateways-pl.png "Secure gateways in ODC Portal")
+![Private gateways in ODC Portal](images/activate-private-gateway-pl.png "Private gateways in ODC Portal")
 
 > :information_source: Make sure to copy the Token and save it in a safe location. For security reasons, you won't be able to access it again after you close or refresh the page.
 
@@ -103,7 +103,7 @@ Use the **Token** and **Address** to form the `outsystemscc` command to run. For
 
 In this example, you create a tunnel to the endpoint `192.168.0.3:8393`, a REST API service running on IP address `192.168.0.3`. The endpoint is available to consume by apps running in the connected stage at `secure-gateway:8081`.
 
-You can create a tunnel to connect multiple endpoints to the same Secure Gateway. To do this, run multiple instances of `outsystemscc` or pass in multiple remotes (`R:<local-port>:<remote-host>:<remote-port>`) to the same instance. In the latter case, for example:
+You can create a tunnel to connect multiple endpoints to the same Private Gateway. To do this, run multiple instances of `outsystemscc` or pass in multiple remotes (`R:<local-port>:<remote-host>:<remote-port>`) to the same instance. In the latter case, for example:
 
     outsystemscc \
       --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
