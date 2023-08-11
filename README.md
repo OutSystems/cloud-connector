@@ -86,7 +86,7 @@ The examples below use the binary command, `outsystemscc`. If you are using Dock
 
 After using `outsystemscc` to connect one or more endpoints, you have a list of connected endpoint(s) of the form `secure-gateway:<port>`. You or a member of your team can use these addresses directly in app development in ODC Studio.
 
-> :information_source: cloud-connector supports connecting to endpoints both over TLS/SSL and without TLS/SSL. It's important that you connect only to trusted endpoints.
+> :information_source: cloud-connector supports connecting to endpoints both over TLS/SSL and without TLS/SSL. Currently only certificates signed by a verified Certificate Authority (CA) are supported.
 
 After successfully activating the private gateway for a stage in the ODC Portal, the following screen displays:
 
