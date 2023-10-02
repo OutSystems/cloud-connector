@@ -84,7 +84,7 @@ If the network requires outbound traffic to route through a proxy, you specify t
 
 The examples below use the binary command, `outsystemscc`. If you are using Docker, replace the command with `docker run --rm -it ghcr.io/outsystems/outsystemscc:latest`.
 
-After using `outsystemscc` to connect one or more endpoints, you have a list of connected endpoint(s) of the form `secure-gateway:<port>`. You or a member of your team can use these addresses directly in app development in ODC Studio.
+After using `outsystemscc` to connect one or more endpoints, you have a list of connected endpoint(s) of the form `secure-gateway:<port>`. You or a member of your team can use these addresses directly in app development in ODC Studio or in developing external libraries using custom code.
 
 > :information_source: cloud-connector supports connecting to endpoints both over TLS/SSL and without TLS/SSL. Currently only certificates signed by a verified Certificate Authority (CA) are supported.
 
@@ -114,7 +114,9 @@ In the above example you create a tunnel to connect two endpoints. One, as befor
 
 You can create a tunnel to any endpoint that's in the internal address range and so is network accessible over TCP or UDP from the system on which `outsystemscc` is run. If the connection is over UDP, add `/udp` to the end of the remote port.
 
-To learn more about using connected endpoints in app development go to the [ODC documentation site](https://www.outsystems.com/goto/secure-gateways). Be sure to share the list of connected endpoint(s) of the form `secure-gateway:<port>` and associated swagger specification file(s) with members of your team responsible developing apps in ODC Studio.
+To learn more about using connected endpoints in app development go to the [ODC documentation site](https://www.outsystems.com/goto/secure-gateways). Be sure to share the list of connected endpoint(s) of the form `secure-gateway:<port>` and any associated swagger specification file(s) with members of your team responsible developing apps in ODC Studio.
+
+You can also use the connected endpoint(s) in custom code development using the External Libraries feature, see the [External Libraries SDK documentation](https://www.outsystems.com/goto/external-logic-private-gateway) for guidance.
 
 ### <a name="logging"></a> Logging
 
