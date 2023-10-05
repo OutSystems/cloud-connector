@@ -77,12 +77,12 @@ You can restrict outbound internet connectivity (via a NAT Gateway, for example)
 
 If the network requires outbound traffic to route through a proxy, you specify that using the `--proxy` option.
 
-> :information_source: There may be a dedicated person or team at your organization responsible for administering network firewalls. If so, you may want to contact them for help with the process.
+> :bulb: There may be a dedicated person or team at your organization responsible for administering network firewalls. If so, you may want to contact them for help with the process.
 
 
 ## 3. <a name="usage"></a> Usage <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
-The examples below use the binary command, `outsystemscc`. If you are using Docker, replace the command with `docker run --rm -it ghcr.io/outsystems/outsystemscc:latest`.
+The examples below use the binary command, `outsystemscc`. If you are using Docker, replace the command with `docker run --rm -it ghcr.io/outsystems/outsystemscc:latest`. 
 
 After using `outsystemscc` to connect one or more endpoints, you have a list of connected endpoint(s) of the form `secure-gateway:<port>`. You or a member of your team can use these addresses directly in app development in ODC Studio or in developing external libraries using custom code.
 
@@ -102,6 +102,17 @@ Use the **Token** and **Address** to form the `outsystemscc` command to run. For
       R:8081:192.168.0.3:8393
 
 In this example, you create a tunnel to the endpoint `192.168.0.3:8393`, a REST API service running on IP address `192.168.0.3`. The endpoint is available to consume by apps running in the connected stage at `secure-gateway:8081`.
+
+> :bulb: If you want to run `outsystemscc` on Azure Container Instances, the command to create a new container with the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) for this example would be:
+> 
+> ```bash
+> az container create \
+>   -g [ResourceGroupName] \
+>   --name [ContainerName] \
+>   --image ghcr.io/outsystems/outsystemscc \
+>   --command-line 'outsystemscc --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd R:8081:192.168.0.3:8393'
+> ```
+> Make sure the Resource Group has outbound access to the internet and network access to the endpoint(s). This may involve configuring your Virtual Network (VNet), Subnets, and Network Security Groups (NSGs) to allow the necessary traffic. You can use tools like Azure Network Watcher to verify connectivity.
 
 You can create a tunnel to connect multiple endpoints to the same Private Gateway. To do this, run multiple instances of `outsystemscc` or pass in multiple remotes (`R:<local-port>:<remote-host>:<remote-port>`) to the same instance. In the latter case, for example:
 
@@ -141,7 +152,7 @@ If your organization uses a centralized log management product, see its document
 
  Keep remaining options with the default unless your network topology requires you to modify them.
 
-```
+```bash
   Usage: outsystemscc [options] <server> <remote> [remote] [remote] ...
 
   <server> is the URL to the server. Use the Address displayed on ODC Portal.
