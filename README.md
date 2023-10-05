@@ -18,6 +18,7 @@ OutSystems Cloud Connector
 1. [Usage](#usage)
     * [Logging](#logging)
 1. [Detailed options](#detailed-options)
+1. [FAQs](#faqs)
 1. [License](#license)
 
 ## 1. <a name="overview"></a> Overview <small><sup>[Top ▲](#table-of-contents)</sup></small>
@@ -103,16 +104,7 @@ Use the **Token** and **Address** to form the `outsystemscc` command to run. For
 
 In this example, you create a tunnel to the endpoint `192.168.0.3:8393`, a REST API service running on IP address `192.168.0.3`. The endpoint is available to consume by apps running in the connected stage at `secure-gateway:8081`.
 
-> :bulb: If you want to run `outsystemscc` on Azure Container Instances, the command to create a new container with the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) for this example would be:
-> 
-> ```bash
-> az container create \
->   -g [ResourceGroupName] \
->   --name [ContainerName] \
->   --image ghcr.io/outsystems/outsystemscc \
->   --command-line 'outsystemscc --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd R:8081:192.168.0.3:8393'
-> ```
-> Make sure the Resource Group has outbound access to the internet and network access to the endpoint(s). This may involve configuring your Virtual Network (VNet), Subnets, and Network Security Groups (NSGs) to allow the necessary traffic. You can use tools like Azure Network Watcher to verify connectivity.
+> :bulb: If you want to run `outsystemscc` on Azure Container Instances, [see the FAQs](#how-do-i-run-outsystemscc-on-azure-container-instances).
 
 You can create a tunnel to connect multiple endpoints to the same Private Gateway. To do this, run multiple instances of `outsystemscc` or pass in multiple remotes (`R:<local-port>:<remote-host>:<remote-port>`) to the same instance. In the latter case, for example:
 
@@ -152,64 +144,84 @@ If your organization uses a centralized log management product, see its document
 
  Keep remaining options with the default unless your network topology requires you to modify them.
 
-```bash
-  Usage: outsystemscc [options] <server> <remote> [remote] [remote] ...
+    Usage: outsystemscc [options] <server> <remote> [remote] [remote] ...
 
-  <server> is the URL to the server. Use the Address displayed on ODC Portal.
+    <server> is the URL to the server. Use the Address displayed on ODC Portal.
 
-  <remote>s are remote connections tunneled through the server, each of
-  which come in the form:
+    <remote>s are remote connections tunneled through the server, each of
+    which come in the form:
 
-    R:<local-port>:<remote-host>:<remote-port>
+        R:<local-port>:<remote-host>:<remote-port>
 
-  which does reverse port forwarding, sharing <remote-host>:<remote-port>
-  from the client to the server's <local-port>.
+    which does reverse port forwarding, sharing <remote-host>:<remote-port>
+    from the client to the server's <local-port>.
 
-    example remotes
+        example remotes
 
-	  R:8081:192.168.0.3:8393
-    R:8082:192.168.0.4:587
+        R:8081:192.168.0.3:8393
+        R:8082:192.168.0.4:587
 
-    See https://github.com/OutSystems/cloud-connector for examples in context.
-    
-  Options:
+        See https://github.com/OutSystems/cloud-connector for examples in context.
+        
+    Options:
 
-    --keepalive, An optional keepalive interval. Since the underlying
-    transport is HTTP, in many instances we'll be traversing through
-    proxies, often these proxies will close idle connections. You must
-    specify a time with a unit, for example '5s' or '2m'. Defaults
-    to '25s' (set to 0s to disable).
+        --keepalive, An optional keepalive interval. Since the underlying
+        transport is HTTP, in many instances we'll be traversing through
+        proxies, often these proxies will close idle connections. You must
+        specify a time with a unit, for example '5s' or '2m'. Defaults
+        to '25s' (set to 0s to disable).
 
-    --max-retry-count, Maximum number of times to retry before exiting.
-    Defaults to unlimited.
+        --max-retry-count, Maximum number of times to retry before exiting.
+        Defaults to unlimited.
 
-    --max-retry-interval, Maximum wait time before retrying after a
-    disconnection. Defaults to 5 minutes.
+        --max-retry-interval, Maximum wait time before retrying after a
+        disconnection. Defaults to 5 minutes.
 
-    --proxy, An optional HTTP CONNECT or SOCKS5 proxy which will be
-    used to reach the server. Authentication can be specified
-    inside the URL.
-    For example, http://admin:password@my-server.com:8081
-            or: socks://admin:password@my-server.com:1080
+        --proxy, An optional HTTP CONNECT or SOCKS5 proxy which will be
+        used to reach the server. Authentication can be specified
+        inside the URL.
+        For example, http://admin:password@my-server.com:8081
+                or: socks://admin:password@my-server.com:1080
 
-    --header, Set a custom header in the form "HeaderName: HeaderContent". 
-    Use the Token displayed on ODC Portal in using token as HeaderName.
-	
-    --hostname, Optionally set the 'Host' header (defaults to the host
-    found in the server url).
+        --header, Set a custom header in the form "HeaderName: HeaderContent". 
+        Use the Token displayed on ODC Portal in using token as HeaderName.
+        
+        --hostname, Optionally set the 'Host' header (defaults to the host
+        found in the server url).
 
-	--pid Generate pid file in current working directory
+        --pid Generate pid file in current working directory
 
-    -v, Enable verbose logging
+        -v, Enable verbose logging
 
-    --help, This help text
+        --help, This help text
 
-  Signals:
-    The outsystemscc process is listening for:
-      a SIGUSR2 to print process stats, and
-      a SIGHUP to short-circuit the client reconnect timer
-```
+    Signals:
+        The outsystemscc process is listening for:
+        a SIGUSR2 to print process stats, and
+        a SIGHUP to short-circuit the client reconnect timer
 
-## 5. <a name="license"></a> License <small><sup>[Top ▲](#table-of-contents)</sup></small>
+## 5. <a name="faqs"></a> FAQs <small><sup>[Top ▲](#table-of-contents)</sup></small>
+
+### How do I run `outsystemscc` on Azure Container Instances?
+
+The command to create a new container with the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) for the [Usage section example](#usage) is:
+
+    az container create \
+      -g [ResourceGroupName] \
+      --name [ContainerName] \
+      --image ghcr.io/outsystems/outsystemscc \
+      --command-line 'outsystemscc --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd R:8081:192.168.0.3:8393'
+
+#### Network configuration
+
+* **Outbound Access to Internet:** Ensure that the Azure Resource Group in which you are deploying outsystemscc has outbound access to the Internet. This is crucial for `outsystemscc` to communicate with your ODC organization. You may need to configure your Network Security Groups (NSGs), Azure Firewall, or whichever network security solution you have in place to allow outbound connections. It's advisable to work with your network administrator to verify the outbound connectivity.
+
+* **Access to Endpoints:** Additionally, ensure that the network configuration allows traffic from the Azure Container Instance to the internal endpoints you wish to connect to. This may involve configuring your Virtual Network (VNet), Subnets, and Network Security Groups (NSGs) to allow the necessary traffic. If there are firewalls or other network devices blocking traffic, you'll need to configure them accordingly.
+
+* **Testing Connectivity:** It's a good practice to test the network connectivity before deploying `outsystemscc``. You can use tools like [Azure Network Watcher](https://docs.microsoft.com/en-us/azure/network-watcher/network-watcher-monitoring-overview) or even basic network troubleshooting tools like ping and traceroute to verify connectivity.
+
+* **Monitoring and Logging:** Implement monitoring and logging to get insights into the network traffic and to troubleshoot any connectivity issues. Azure provides various monitoring and logging tools like [Azure Monitor](https://docs.microsoft.com/en-us/azure/azure-monitor/overview) and [Azure Log Analytics](https://docs.microsoft.com/en-us/azure/azure-monitor/log-query/log-analytics-tutorial) which can be invaluable for diagnosing network-related issues.
+
+## 6. <a name="license"></a> License <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
 [MIT](https://github.com/outsystems/cloud-connector/blob/master/LICENSE) © OutSystems
