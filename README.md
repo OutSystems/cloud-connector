@@ -212,11 +212,20 @@ The command to create a new container with the [Azure CLI](https://learn.microso
       --image ghcr.io/outsystems/outsystemscc \
       --command-line 'outsystemscc --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd R:8081:192.168.0.3:8393'
 
+The key parameters used in the command:
+
+* `-g [ResourceGroupName]`: Specifies the name of the resource group where the container instance will be created.
+* `--name [ContainerName]`: Specifies the name of the container instance.
+* `--image ghcr.io/outsystems/outsystemscc`: Specifies the Docker image to use for the container instance.
+* `--command-line '...'`: Specifies the command line to run in the container. This command starts the `outsystemscc` service with the specified header token, server URL, and remote connection details.
+
+Ensure to replace `[ResourceGroupName]`, `[ContainerName]`, and the values in the `--command-line` parameter with your actual values.
+
 #### Network configuration
 
-* **Outbound Access to Internet:** Ensure that the Azure Resource Group in which you are deploying `outsystemscc` has outbound access to the Internet. This is crucial for `outsystemscc` to communicate with your ODC organization. You may need to configure your Network Security Groups (NSGs), Azure Firewall, or whichever network security solution you have in place to allow outbound connections. It's advisable to work with your network administrator to verify the outbound connectivity.
+* **Outbound Access to Internet:** Ensure that the Azure Resource Group in which you are deploying `outsystemscc` has outbound access to the Internet with minimum access restriction as specified in [Firewall setup](#firewall-setup). This is crucial for `outsystemscc` to communicate with your ODC organization. You may need to configure your Network Security Groups (NSGs), Azure Firewall, or whichever network security solution you have in place to allow outbound connections. It's advisable to work with your network administrator to verify the outbound connectivity.
 
-* **Access to Endpoints:** Additionally, ensure that the network configuration allows traffic from the Azure Container Instance to the internal endpoints you wish to connect to. This may involve configuring your Virtual Network (VNet), Subnets, and Network Security Groups (NSGs) to allow the necessary traffic. If there are firewalls or other network devices blocking traffic, you'll need to configure them accordingly.
+* **Access to Endpoints:** Additionally, ensure that the network configuration allows traffic from the Azure Container Instance to the internal endpoint(s) you wish to connect to. This may involve configuring your Virtual Network (VNet), Subnets, and Network Security Groups (NSGs) to allow the necessary traffic. If there are firewalls or other network devices blocking traffic, you'll need to configure them accordingly.
 
 * **Testing Connectivity:** It's a good practice to test the network connectivity before deploying `outsystemscc`. You can use tools like [Azure Network Watcher](https://docs.microsoft.com/en-us/azure/network-watcher/network-watcher-monitoring-overview) or even basic network troubleshooting tools like ping and traceroute to verify connectivity.
 
