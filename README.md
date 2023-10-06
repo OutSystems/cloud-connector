@@ -223,7 +223,7 @@ Ensure to replace `[ResourceGroupName]`, `[ContainerName]`, and the values in th
 
 #### Network configuration
 
-* **Outbound Access to Internet:** Ensure that the Azure Resource Group in which you are deploying `outsystemscc` has outbound access to the Internet with minimum access restriction as specified in [Firewall setup](#firewall-setup). This is crucial for `outsystemscc` to communicate with your ODC organization. You may need to configure your Network Security Groups (NSGs), Azure Firewall, or whichever network security solution you have in place to allow outbound connections. It's advisable to work with your network administrator to verify the outbound connectivity.
+* **Outbound Access to Internet:** Ensure that the Azure Resource Group in which you are deploying `outsystemscc` has outbound access to the Internet with no greater restriction than specified in [Firewall setup](#firewall-setup). This is crucial for `outsystemscc` to communicate with your ODC organization. You may need to configure your Network Security Groups (NSGs), Azure Firewall, or whichever network security solution you have in place to allow outbound connections.
 
 * **Access to Endpoints:** Additionally, ensure that the network configuration allows traffic from the Azure Container Instance to the internal endpoint(s) you wish to connect to. This may involve configuring your Virtual Network (VNet), Subnets, and Network Security Groups (NSGs) to allow the necessary traffic. If there are firewalls or other network devices blocking traffic, you'll need to configure them accordingly.
 
