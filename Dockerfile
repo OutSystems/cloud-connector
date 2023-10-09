@@ -1,4 +1,4 @@
 # Dockerfile
 FROM alpine
-COPY outsystemscc /outsystemscc
-ENTRYPOINT ["/outsystemscc"]
+COPY outsystemscc /app
+ENTRYPOINT ["/app"]
