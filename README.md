@@ -66,9 +66,13 @@ You may want to configure the binary to run as a service so it can start on syst
 
 ### <a name="docker"></a> Docker
 
-Run the Docker image directly from the OutSystems GitHub Container registry:
+Run the Docker image directly from the OutSystems GitHub container registry:
 
-    docker run --rm -it ghcr.io/outsystems/outsystemscc:latest --help
+    docker run --rm -it ghcr.io/outsystems/outsystemscc --help
+
+If you're running the container in a runtime where you need to specify the command line or override the entrypoint (e.g. Azure Container Instances or AWS Fargate):
+
+    docker run --rm -it --entrypoint /app/outsystems ghcr.io/outsystems/outsystemscc --help
 
 ### <a name="firewall-setup"></a> Firewall setup
 
@@ -210,7 +214,7 @@ The command to create a new container with the [Azure CLI](https://learn.microso
       -g [ResourceGroupName] \
       --name [ContainerName] \
       --image ghcr.io/outsystems/outsystemscc \
-      --command-line 'outsystemscc --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd R:8081:192.168.0.3:8393'
+      --command-line '/app/outsystemscc --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd R:8081:192.168.0.3:8393'
 
 The key parameters used in the command:
 
