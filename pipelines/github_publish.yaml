@@ -1,0 +1,67 @@
+trigger: none # No CI build
+
+pr: none # Not for pull requests
+
+variables:
+  GO_VERSION: "1.21.3"
+
+pool:
+  vmImage: ubuntu-latest
+
+jobs:
+  - job: Release
+    steps:
+      - task: Bash@3
+        inputs:
+          targetType: 'inline'
+          script: |
+            tag=$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags https://$(GITHUB_TOKEN)@github.com/outsystems/cloud-connector '*.*.*' | tail --lines=1 | cut --delimiter='/' --fields=3)
+            git clone -b $tag https://$(GITHUB_TOKEN)@github.com/outsystems/cloud-connector || exit 1
+
+            # Remove "v" before version from tag to align with Docker tag for next steps
+            if [[ $tag = v* ]]; then
+
+                      tag="${tag:1}"
+
+            fi
+            echo "Latest tag: ${tag}"
+            echo "##vso[task.setvariable variable=tag;]$tag"
+        displayName: Clone cloud-connector repo on latest tag
+
+      - task: Bash@3
+        inputs:
+          targetType: 'inline'
+          script: |
+              echo $(GITHUB_TOKEN) | docker login ghcr.io -u $(GITHUB_USER) --password-stdin
+
+              if [[ $(docker manifest inspect ghcr.io/outsystems/outsystemscc:$(tag) 2>&1) == "manifest unknown" ]]; then
+                
+                check=false
+                echo "##vso[task.setvariable variable=check;]false"
+                echo "Latest tag not in Ghcr.io. Going to publish it..."
+
+              else
+
+                check=true
+                echo "##vso[task.setvariable variable=check;]true"
+                echo "Latest tag already in Ghcr.io. Skipping publish..."
+
+              fi
+        displayName: Verify if tag already exists on Ghcr.io
+
+      - task: GoTool@0
+        inputs:
+          version: "$(GO_VERSION)"
+        displayName: Install Go
+        condition: eq(variables['check'], 'false')
+
+      - task: goreleaser@0
+        inputs:
+          version: 'latest'
+          distribution: 'goreleaser'
+          args: 'release --rm-dist'
+          workdir: 'cloud-connector'
+        displayName: Run GoReleaser
+        condition: eq(variables['check'], 'false')
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
