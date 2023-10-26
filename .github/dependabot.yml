@@ -4,6 +4,7 @@ updates:
     directory: /
     schedule:
       interval: daily
+      time: "13:00"
     allow:
       # Allow both direct and indirect updates for all packages
       - dependency-type: "all"
