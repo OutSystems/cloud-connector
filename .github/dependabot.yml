@@ -4,8 +4,9 @@ updates:
     directory: /
     schedule:
       interval: daily
-      time: "13:00"
+      time: "16:00"
     allow:
       # Allow both direct and indirect updates for all packages
       - dependency-type: "all"
     rebase-strategy: "disabled"
+    open-pull-requests-limit: 10
