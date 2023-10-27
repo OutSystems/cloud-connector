@@ -3,8 +3,7 @@ updates:
   - package-ecosystem: gomod
     directory: /
     schedule:
-      interval: daily
-      time: "19:00"
+      interval: weekly
     allow:
       # Allow both direct and indirect updates for all packages
       - dependency-type: "all"
