@@ -71,7 +71,7 @@ Run the Docker image directly from the OutSystems GitHub container registry:
 
 If you're running the container on a runtime where you need to specify the command line or override the entrypoint (for example on Azure Container Instances or AWS Fargate):
 
-    docker run --rm -it --entrypoint /app/outsystems ghcr.io/outsystems/outsystemscc --help
+    docker run --rm -it --entrypoint /app/outsystemscc ghcr.io/outsystems/outsystemscc --help
 
 ### <a name="firewall-setup"></a> Firewall setup
 
