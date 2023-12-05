@@ -26,7 +26,7 @@ Using the OutSystems Cloud Connector (`outsystemscc`) you can connect the apps r
 
 You run `outsystemscc` on a system in your private network—an on-premise network, a private cloud, or the public cloud—to establish a secure tunnel between your endpoints and the Private Gateway. Your apps can then access the endpoints through the Private Gateway, the server component you activate for each stage of your ODC organization [using the ODC Portal](https://www.outsystems.com/goto/secure-gateways). Common use cases include accessing data through a private REST API service and making requests to internal services (SMTP, SMB, NFS,..)
 
-`outsystemscc` creates a fast TCP/UDP tunnel, with transport over HTTP via WebSockets, secured via SSH using ECDSA with SHA256 keys. The connection is established to either the built-in domain for the stage (for example `<customername>.outsystems.app`) or a custom domain configured for the stage (for example `example.com`). In both cases, the connection is over TLS and always encrypted with a valid X.509 certificate.
+`outsystemscc` creates a fast TCP/UDP tunnel, with transport over HTTP via WebSockets, secured via SSH using ECDSA with SHA256 keys. The connection is established to either the built-in domain for the stage (for example `<organization>.outsystems.app`) or a custom domain configured for the stage (for example `example.com`). In both cases, the connection is over TLS and always encrypted with a valid X.509 certificate.
 
 The following diagram is an example of a ODC customer setup for a Private Gateway active on two stages.
 
@@ -65,24 +65,28 @@ You may want to configure the binary to run as a service so it can start on syst
 
 ### <a name="docker"></a> Docker
 
-Run the Docker image directly from the OutSystems GitHub Container registry:
+Run the Docker image directly from the OutSystems GitHub container registry:
 
-    docker run --rm -it ghcr.io/outsystems/outsystemscc:latest --help
+    docker run --rm -it ghcr.io/outsystems/outsystemscc --help
+
+If you're running the container on a runtime where you need to specify the command line or override the entrypoint (for example on Azure Container Instances or AWS Fargate):
+
+    docker run --rm -it --entrypoint /app/outsystemscc ghcr.io/outsystems/outsystemscc --help
 
 ### <a name="firewall-setup"></a> Firewall setup
 
 `outsystemscc` requires only outbound access to the internet in the private network(s) in which it's running.
 
-You can restrict outbound internet connectivity (via a NAT Gateway, for example) by a firewall. For a Layer 7 firewall, you should allow outbound connections to the built-in domain (for example `<customername>.outsystems.app`) and any custom domains configured for the stage (for example `example.com`). For a Layer 4 firewall, you must open firewall rules to all [CloudFront IP ranges](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/LocationsOfEdgeServers.html) for port 443.
+You can restrict outbound internet connectivity (via a NAT Gateway, for example) by a firewall. For a Layer 7 firewall, you should allow outbound connections to the built-in domain (for example `<organization>.outsystems.app`) and any custom domains configured for the stage (for example `example.com`). For a Layer 4 firewall, you must open firewall rules to all [CloudFront IP ranges](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/LocationsOfEdgeServers.html) for port 443.
 
 If the network requires outbound traffic to route through a proxy, you specify that using the `--proxy` option.
 
-> :information_source: There may be a dedicated person or team at your organization responsible for administering network firewalls. If so, you may want to contact them for help with the process.
+> :bulb: There may be a dedicated person or team at your organization responsible for administering network firewalls. If so, you may want to contact them for help with the process.
 
 
 ## 3. <a name="usage"></a> Usage <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
-The examples below use the binary command, `outsystemscc`. If you are using Docker, replace the command with `docker run --rm -it ghcr.io/outsystems/outsystemscc:latest`.
+The examples below use the binary command, `outsystemscc`. If you are using Docker, replace the command with `docker run --rm -it ghcr.io/outsystems/outsystemscc:latest`. 
 
 After using `outsystemscc` to connect one or more endpoints, you have a list of connected endpoint(s) of the form `secure-gateway:<port>`. You or a member of your team can use these addresses directly in app development in ODC Studio or in developing external libraries using custom code.
 
@@ -98,16 +102,18 @@ Use the **Token** and **Address** to form the `outsystemscc` command to run. For
 
     outsystemscc \
       --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
-      https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd \
+      https://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
       R:8081:192.168.0.3:8393
 
 In this example, you create a tunnel to the endpoint `192.168.0.3:8393`, a REST API service running on IP address `192.168.0.3`. The endpoint is available to consume by apps running in the connected stage at `secure-gateway:8081`.
+
+> :bulb: If you want to run `outsystemscc` on Azure Container Instances, [see the FAQs](FAQ.md#how-do-i-run-outsystemscc-on-azure-container-instances) for specific guidance.
 
 You can create a tunnel to connect multiple endpoints to the same Private Gateway. To do this, run multiple instances of `outsystemscc` or pass in multiple remotes (`R:<local-port>:<remote-host>:<remote-port>`) to the same instance. In the latter case, for example:
 
     outsystemscc \
       --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
-      https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd \
+      https://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
       R:8081:192.168.0.3:8393 R:8082:192.168.0.4:587
 
 In the above example you create a tunnel to connect two endpoints. One, as before, `192.168.0.3:8393`, a REST API service running on IP address `192.168.0.3`. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8081`. Second, `192.168.0.4:587`, an SMTP server running on `192.168.0.4`, another IP in the internal address range. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8082`.
@@ -123,14 +129,14 @@ You can also use the connected endpoint(s) in custom code development using the 
 By default, `outsystemscc` logs timestamped information about the connection status and 
 latency to stdout. For example:
 
-    2022/11/10 12:14:42 client: Connecting to ws://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd:80
+    2022/11/10 12:14:42 client: Connecting to ws://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7:80
     2022/11/10 12:14:42 client: Connected (Latency 733.439µs)
 
 You can redirect this output to a file for retention purposes. For example:
 
     outsystemscc \
       --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
-      https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd \
+      https://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
       R:8081:10.0.0.1:8393 \ 
       >> outsystemscc_log
 
@@ -141,63 +147,61 @@ If your organization uses a centralized log management product, see its document
 
  Keep remaining options with the default unless your network topology requires you to modify them.
 
-```
-  Usage: outsystemscc [options] <server> <remote> [remote] [remote] ...
+    Usage: outsystemscc [options] <server> <remote> [remote] [remote] ...
 
-  <server> is the URL to the server. Use the Address displayed on ODC Portal.
+    <server> is the URL to the server. Use the Address displayed on ODC Portal.
 
-  <remote>s are remote connections tunneled through the server, each of
-  which come in the form:
+    <remote>s are remote connections tunneled through the server, each of
+    which come in the form:
 
-    R:<local-port>:<remote-host>:<remote-port>
+        R:<local-port>:<remote-host>:<remote-port>
 
-  which does reverse port forwarding, sharing <remote-host>:<remote-port>
-  from the client to the server's <local-port>.
+    which does reverse port forwarding, sharing <remote-host>:<remote-port>
+    from the client to the server's <local-port>.
 
-    example remotes
+        example remotes
 
-	  R:8081:192.168.0.3:8393
-    R:8082:192.168.0.4:587
+        R:8081:192.168.0.3:8393
+        R:8082:192.168.0.4:587
 
-    See https://github.com/OutSystems/cloud-connector for examples in context.
-    
-  Options:
+        See https://github.com/OutSystems/cloud-connector for examples in context.
+        
+    Options:
 
-    --keepalive, An optional keepalive interval. Since the underlying
-    transport is HTTP, in many instances we'll be traversing through
-    proxies, often these proxies will close idle connections. You must
-    specify a time with a unit, for example '5s' or '2m'. Defaults
-    to '25s' (set to 0s to disable).
+        --keepalive, An optional keepalive interval. Since the underlying
+        transport is HTTP, in many instances we'll be traversing through
+        proxies, often these proxies will close idle connections. You must
+        specify a time with a unit, for example '5s' or '2m'. Defaults
+        to '25s' (set to 0s to disable).
 
-    --max-retry-count, Maximum number of times to retry before exiting.
-    Defaults to unlimited.
+        --max-retry-count, Maximum number of times to retry before exiting.
+        Defaults to unlimited.
 
-    --max-retry-interval, Maximum wait time before retrying after a
-    disconnection. Defaults to 5 minutes.
+        --max-retry-interval, Maximum wait time before retrying after a
+        disconnection. Defaults to 5 minutes.
 
-    --proxy, An optional HTTP CONNECT or SOCKS5 proxy which will be
-    used to reach the server. Authentication can be specified
-    inside the URL.
-    For example, http://admin:password@my-server.com:8081
-            or: socks://admin:password@my-server.com:1080
+        --proxy, An optional HTTP CONNECT or SOCKS5 proxy which will be
+        used to reach the server. Authentication can be specified
+        inside the URL.
+        For example, http://admin:password@my-server.com:8081
+                or: socks://admin:password@my-server.com:1080
 
-    --header, Set a custom header in the form "HeaderName: HeaderContent". 
-    Use the Token displayed on ODC Portal in using token as HeaderName.
-	
-    --hostname, Optionally set the 'Host' header (defaults to the host
-    found in the server url).
+        --header, Set a custom header in the form "HeaderName: HeaderContent". 
+        Use the Token displayed on ODC Portal in using token as HeaderName.
+        
+        --hostname, Optionally set the 'Host' header (defaults to the host
+        found in the server url).
 
-	--pid Generate pid file in current working directory
+        --pid Generate pid file in current working directory
 
-    -v, Enable verbose logging
+        -v, Enable verbose logging
 
-    --help, This help text
+        --help, This help text
 
-  Signals:
-    The outsystemscc process is listening for:
-      a SIGUSR2 to print process stats, and
-      a SIGHUP to short-circuit the client reconnect timer
-```
+    Signals:
+        The outsystemscc process is listening for:
+        a SIGUSR2 to print process stats, and
+        a SIGHUP to short-circuit the client reconnect timer
 
 ## 5. <a name="license"></a> License <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
