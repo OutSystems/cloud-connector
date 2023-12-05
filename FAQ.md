@@ -18,7 +18,7 @@ The command to create a new container with the [Azure CLI](https://learn.microso
       -g [ResourceGroupName] \
       --name [ContainerName] \
       --image ghcr.io/outsystems/outsystemscc \
-      --command-line '/app/outsystemscc --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd R:8081:192.168.0.3:8393'
+      --command-line '/app/outsystemscc --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" https://organization.outsystems.app/sg_f5696918-3a8c-4da8-8079-ef768d5479fd R:8081:192.168.0.3:8393'
 
 The key parameters used in the command:
 

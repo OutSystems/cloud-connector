@@ -26,7 +26,7 @@ Using the OutSystems Cloud Connector (`outsystemscc`) you can connect the apps r
 
 You run `outsystemscc` on a system in your private network—an on-premise network, a private cloud, or the public cloud—to establish a secure tunnel between your endpoints and the Private Gateway. Your apps can then access the endpoints through the Private Gateway, the server component you activate for each stage of your ODC organization [using the ODC Portal](https://www.outsystems.com/goto/secure-gateways). Common use cases include accessing data through a private REST API service and making requests to internal services (SMTP, SMB, NFS,..)
 
-`outsystemscc` creates a fast TCP/UDP tunnel, with transport over HTTP via WebSockets, secured via SSH using ECDSA with SHA256 keys. The connection is established to either the built-in domain for the stage (for example `<customername>.outsystems.app`) or a custom domain configured for the stage (for example `example.com`). In both cases, the connection is over TLS and always encrypted with a valid X.509 certificate.
+`outsystemscc` creates a fast TCP/UDP tunnel, with transport over HTTP via WebSockets, secured via SSH using ECDSA with SHA256 keys. The connection is established to either the built-in domain for the stage (for example `<organization>.outsystems.app`) or a custom domain configured for the stage (for example `example.com`). In both cases, the connection is over TLS and always encrypted with a valid X.509 certificate.
 
 The following diagram is an example of a ODC customer setup for a Private Gateway active on two stages.
 
@@ -77,7 +77,7 @@ If you're running the container on a runtime where you need to specify the comma
 
 `outsystemscc` requires only outbound access to the internet in the private network(s) in which it's running.
 
-You can restrict outbound internet connectivity (via a NAT Gateway, for example) by a firewall. For a Layer 7 firewall, you should allow outbound connections to the built-in domain (for example `<customername>.outsystems.app`) and any custom domains configured for the stage (for example `example.com`). For a Layer 4 firewall, you must open firewall rules to all [CloudFront IP ranges](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/LocationsOfEdgeServers.html) for port 443.
+You can restrict outbound internet connectivity (via a NAT Gateway, for example) by a firewall. For a Layer 7 firewall, you should allow outbound connections to the built-in domain (for example `<organization>.outsystems.app`) and any custom domains configured for the stage (for example `example.com`). For a Layer 4 firewall, you must open firewall rules to all [CloudFront IP ranges](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/LocationsOfEdgeServers.html) for port 443.
 
 If the network requires outbound traffic to route through a proxy, you specify that using the `--proxy` option.
 
@@ -102,7 +102,7 @@ Use the **Token** and **Address** to form the `outsystemscc` command to run. For
 
     outsystemscc \
       --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
-      https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd \
+      https://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
       R:8081:192.168.0.3:8393
 
 In this example, you create a tunnel to the endpoint `192.168.0.3:8393`, a REST API service running on IP address `192.168.0.3`. The endpoint is available to consume by apps running in the connected stage at `secure-gateway:8081`.
@@ -113,7 +113,7 @@ You can create a tunnel to connect multiple endpoints to the same Private Gatewa
 
     outsystemscc \
       --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
-      https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd \
+      https://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
       R:8081:192.168.0.3:8393 R:8082:192.168.0.4:587
 
 In the above example you create a tunnel to connect two endpoints. One, as before, `192.168.0.3:8393`, a REST API service running on IP address `192.168.0.3`. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8081`. Second, `192.168.0.4:587`, an SMTP server running on `192.168.0.4`, another IP in the internal address range. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8082`.
@@ -129,14 +129,14 @@ You can also use the connected endpoint(s) in custom code development using the 
 By default, `outsystemscc` logs timestamped information about the connection status and 
 latency to stdout. For example:
 
-    2022/11/10 12:14:42 client: Connecting to ws://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd:80
+    2022/11/10 12:14:42 client: Connecting to ws://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7:80
     2022/11/10 12:14:42 client: Connected (Latency 733.439µs)
 
 You can redirect this output to a file for retention purposes. For example:
 
     outsystemscc \
       --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
-      https://customername.outsystems.app/sq_f5696918-3a8c-4da8-8079-ef768d5479fd \
+      https://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
       R:8081:10.0.0.1:8393 \ 
       >> outsystemscc_log
 
