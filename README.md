@@ -10,15 +10,16 @@ OutSystems Cloud Connector
 
 ## <a name="table-of-contents"></a> Table of Contents
 
-1. [Overview](#overview)
-1. [Install](#install)
-    * [Binary](#binary)
-    * [Docker](#docker)
-    * [Firewall setup](#firewall-setup)
-1. [Usage](#usage)
-    * [Logging](#logging)
-1. [Detailed options](#detailed-options)
-1. [License](#license)
+- [ Table of Contents](#-table-of-contents)
+- [1.  Overview Top ▲](#1--overview-top-)
+- [2.  Install Top ▲](#2--install-top-)
+  - [ Binary](#-binary)
+  - [ Docker](#-docker)
+  - [ Firewall setup](#-firewall-setup)
+- [3.  Usage Top ▲](#3--usage-top-)
+  - [ Logging](#-logging)
+- [4.  Detailed options Top ▲](#4--detailed-options-top-)
+- [5.  License Top ▲](#5--license-top-)
 
 ## 1. <a name="overview"></a> Overview <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
@@ -117,6 +118,8 @@ You can create a tunnel to connect multiple endpoints to the same Private Gatewa
       R:8081:192.168.0.3:8393 R:8082:192.168.0.4:587
 
 In the above example you create a tunnel to connect two endpoints. One, as before, `192.168.0.3:8393`, a REST API service running on IP address `192.168.0.3`. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8081`. Second, `192.168.0.4:587`, an SMTP server running on `192.168.0.4`, another IP in the internal address range. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8082`.
+
+> :bulb: Some Webservers has issues accepting connections from outsystemscc, when using SSL. In this case the "onBeforeRequest" action in the app should be used to override the Host header, with the same endpoint (URL server).
 
 You can create a tunnel to any endpoint that's in the internal address range and so is network accessible over TCP or UDP from the system on which `outsystemscc` is run. If the connection is over UDP, add `/udp` to the end of the remote port.
 
