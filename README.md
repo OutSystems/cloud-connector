@@ -69,6 +69,12 @@ Run the Docker image directly from the OutSystems GitHub container registry:
 
     docker run --rm -it ghcr.io/outsystems/outsystemscc --help
 
+To enhance the resilience of `outsystemscc` consider running the Docker container in detached mode and configuring it to restart automatically in case of failures. This can be achieved by adding the `-d` flag and the `--restart=on-failure:<n>` option, where `<n>` is the maximum number of restart attempts. For example:
+
+    docker run -d --restart=on-failure:3 ghcr.io/outsystems/outsystemscc:latest --help
+
+The `-d` flag runs the Docker container in detached mode, setting it to run in the background. The `--restart=on-failure` option ensures that the container will automatically restart up to `<n>` times if it exits with a non-zero status. For more information, see the [Docker run reference](https://docs.docker.com/engine/reference/run/).
+
 If you're running the container on a runtime where you need to specify the command line or override the entrypoint (for example on Azure Container Instances or AWS Fargate):
 
     docker run --rm -it --entrypoint /app/outsystemscc ghcr.io/outsystems/outsystemscc --help
@@ -86,7 +92,7 @@ If the network requires outbound traffic to route through a proxy, you specify t
 
 ## 3. <a name="usage"></a> Usage <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
-The examples below use the binary command, `outsystemscc`. If you are using Docker, replace the command with `docker run --rm -it ghcr.io/outsystems/outsystemscc:latest`. 
+The examples below use the binary command, `outsystemscc`. If you are using Docker, replace the command with `docker run --rm -it ghcr.io/outsystems/outsystemscc:latest` or a custom command as outlined in [Docker](#docker) section. 
 
 After using `outsystemscc` to connect one or more endpoints, you have a list of connected endpoint(s) of the form `secure-gateway:<port>`. You or a member of your team can use these addresses directly in app development in ODC Studio or in developing external libraries using custom code.
 
