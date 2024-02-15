@@ -144,9 +144,9 @@ func client(args []string) {
 
 	if err := validateRemotes(args[1:]); err != nil {
 		log.Fatal(err)
-	} else {
-		config.Remotes = args[1:]
 	}
+
+	config.Remotes = args[1:]
 
 	//default auth
 	if config.Auth == "" {
@@ -180,6 +180,7 @@ func validateRemotes(remotes []string) error {
 	uniqueRemotes := []string{}
 
 	for _, newRemote := range remotes {
+
 		// iterate all remotes already in the unique list, if duplicate is found return error
 		for _, unique := range uniqueRemotes {
 			firstRemote, err := settings.DecodeRemote(unique)
@@ -193,7 +194,7 @@ func validateRemotes(remotes []string) error {
 			}
 
 			if isDuplicatedRemote(firstRemote, secondRemote) {
-				return fmt.Errorf("invalid Remote configuration: remote port '%s' is duplicated", secondRemote.RemotePort)
+				return fmt.Errorf("invalid Remote configuration: local port '%s' is duplicated", secondRemote.LocalPort)
 			}
 		}
 
@@ -204,5 +205,5 @@ func validateRemotes(remotes []string) error {
 }
 
 func isDuplicatedRemote(first, second *settings.Remote) bool {
-	return first.RemotePort == second.RemotePort
+	return first.LocalPort == second.LocalPort
 }
