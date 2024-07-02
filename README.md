@@ -44,7 +44,7 @@ To install, use either the binary or Docker option. Run the binary on Linux, or 
 
 * You always run the latest release. You don't need to reinstall each new release.
 * You can run `outsystemscc` on Windows or any system that supports Docker:
-    * You need to install Windows Subsystem for Linux (WSL) on Windows to use the `outsystemscc` Linux binary.
+    * Otherwise, you need to install Windows Subsystem for Linux (WSL) on Windows to use the `outsystemscc` Linux binary.
 * Without additional configuration `outsystemscc` starts with the Docker daemon on system boot.
 * For advanced use cases, you can use Kubernetes for orchestration.
 
@@ -52,9 +52,7 @@ After install, ensure you configure the firewall for the private network(s) corr
 
 ### <a name="binary"></a> Binary
 
-Download the latest release from the [releases page](https://github.com/OutSystems/cloud-connector/releases/latest). There are precompiled binaries available for Linux on i386 (32-bit), amd64 (64-bit), and arm64 (64-bit). 
-
-You can use the `outsystemscc` Linux binary within WSL on Windows. Alternatively, you can run the binary on any Windows version that supports [WSL2](https://docs.microsoft.com/en-us/windows/wsl/).
+Download the latest release from the [releases page](https://github.com/OutSystems/cloud-connector/releases/latest). There are precompiled binaries available for Linux on i386 (32-bit), amd64 (64-bit), and arm64 (64-bit). You can run the binary on any Windows version that supports [WSL](https://docs.microsoft.com/en-us/windows/wsl/).
 
 To install, unzip/untar the package and then copy the binary to the desired location. For example:
 
