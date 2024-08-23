@@ -1,6 +1,7 @@
 styles/
 rules/
 .vs/*
+.idea/*
 .editorconfig
 .markdownlint.json
 .vale.ini
