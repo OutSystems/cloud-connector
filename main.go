@@ -1,18 +1,19 @@
 package main
 
+// FIPS mode is enabled by importing the fipsonly package.
 import (
+	_ "crypto/tls/fipsonly"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"runtime"
 	"strconv"
 	"strings"
 	"time"
-
-	"math/rand"
 
 	chclient "github.com/jpillora/chisel/client"
 	"github.com/jpillora/chisel/share/cos"
