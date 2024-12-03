@@ -1,3 +1,7 @@
+# test this goreleaser config with:
+# - cd cloud-connector
+# - goreleaser --clean --snapshot --config .goreleaser.yml
+version: 2
 project_name: outsystemscc
 before:
   hooks:
