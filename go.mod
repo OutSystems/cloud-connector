@@ -14,6 +14,6 @@ require (
 	golang.org/x/sys v0.24.0 // indirect
 )
 
-replace github.com/jpillora/chisel => github.com/outsystems/chisel v1.9.2-os.4
+replace github.com/jpillora/chisel => github.com/outsystems/chisel v1.10.1-os.1
 
 go 1.22

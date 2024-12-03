@@ -1,3 +1,4 @@
+dist/
 styles/
 rules/
 .vs/*
@@ -5,3 +6,4 @@ rules/
 .editorconfig
 .markdownlint.json
 .vale.ini
+cloud-connector

@@ -8,8 +8,8 @@ github.com/jpillora/backoff v1.0.0 h1:uvFg412JmmHBHw7iwprIxkPMI+sGQ4kzOWsMeHnm2E
 github.com/jpillora/backoff v1.0.0/go.mod h1:J/6gKK9jxlEcS3zixgDgUAsiuZ7yrSoa/FX5e0EB2j4=
 github.com/jpillora/sizestr v1.0.0 h1:4tr0FLxs1Mtq3TnsLDV+GYUWG7Q26a6s+tV5Zfw2ygw=
 github.com/jpillora/sizestr v1.0.0/go.mod h1:bUhLv4ctkknatr6gR42qPxirmd5+ds1u7mzD+MZ33f0=
-github.com/outsystems/chisel v1.9.2-os.4 h1:PplhrOrFlj2d0M/lNuvswSPzAmdlPkx8OZly1l5dyPs=
-github.com/outsystems/chisel v1.9.2-os.4/go.mod h1:H90bwoii5ME/1jRRxreLwd43gTmp03mJQa8xKHcCZW0=
+github.com/outsystems/chisel v1.10.1-os.1 h1:vhXHAZDLvnvTqRs7UI5iPGkrJAUO3jX3RfEW9SsbYgw=
+github.com/outsystems/chisel v1.10.1-os.1/go.mod h1:VkNkkGNaTDfATXlgFuZu3QW8EQovCKcfcodchE34+YU=
 golang.org/x/crypto v0.26.0 h1:RrRspgV4mU+YwB4FYnuBoKsUapNIL5cohGAmSH3azsw=
 golang.org/x/crypto v0.26.0/go.mod h1:GY7jblb9wI+FOo5y8/S2oY4zWP07AkOJ4+jxCqdqn54=
 golang.org/x/net v0.28.0 h1:a9JDOJc5GMUJ0+UDqmLT86WiEy7iWyIhz8gz8E4e5hE=
