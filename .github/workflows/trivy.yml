@@ -29,10 +29,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          version: latest
+          args: --snapshot --skip-publish --rm-dist
+
       - name: Build an image from Dockerfile
         run: |
-          apt install -y goreleaser
-          goreleaser build --snapshot --rm-dist
           docker build -t ghcr.io/outsystems/outsystemscc:${{ github.sha }} .
 
       - name: Run Trivy vulnerability scanner
