@@ -33,13 +33,13 @@ jobs:
         uses: goreleaser/goreleaser-action@v6
         with:
           version: '~> v2'
-          args: --clean --snapshot --config .goreleaser.yaml  --set version={{ github.event.after }}
+          args: --clean --snapshot --config .goreleaser.yaml
           workdir: .
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
         with:
-          image-ref: 'ghcr.io/outsystems/outsystemscc:{{ github.event.after }}-next'
+          image-ref: 'ghcr.io/outsystems/outsystemscc:0.0.1-next'
           format: 'template'
           template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'
