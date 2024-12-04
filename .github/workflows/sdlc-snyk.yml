@@ -1,0 +1,24 @@
+name: SDLC - Snyk Container Analysis
+
+on:
+    pull_request:
+      types: [opened, edited, synchronize, reopened]
+      branches: [RDGRS-953-snyk-container-analysis] 
+
+jobs:
+    wait-for-pr-ci:
+        uses: OutSystems/sdlc-gha-snyk/.github/workflows/wait-for-pr-check.yml@v1
+        secrets: inherit
+        with:
+            commitSha: ${{ github.event.pull_request.head.sha }}
+            runnerName: wait-for-pr-ci
+            checkName: OutSystems.cloud-connector
+            waitInterval: 10
+            
+    call-sdlc-snyk-container:
+        needs: wait-for-pr-ci
+        uses: OutSystems/sdlc-gha-snyk/.github/workflows/snyk-container.yml@v1
+        secrets: inherit
+        with:
+            serviceName: "outsystems-cloud-connector"
+            commitSha: ${{ github.event.pull_request.head.sha }}
