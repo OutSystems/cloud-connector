@@ -33,7 +33,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v2
         with:
           version: latest
-          args: --clean --snapshot --config ${{ github.workspace }}/.goreleaser.yml
+          args: --clean --snapshot --config .goreleaser.yaml
 
       - name: Build an image from Dockerfile
         run: |
