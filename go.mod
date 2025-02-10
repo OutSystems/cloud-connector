@@ -11,9 +11,10 @@ require (
 	golang.org/x/crypto v0.29.0 // indirect
 	golang.org/x/net v0.31.0 // indirect
 	golang.org/x/sync v0.9.0 // indirect
-	golang.org/x/sys v0.27.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
 )
 
 replace github.com/jpillora/chisel => github.com/outsystems/chisel v1.10.1-os.2
 
 go 1.22
+toolchain go1.22.12
