@@ -16,6 +16,4 @@ require (
 
 replace github.com/jpillora/chisel => github.com/outsystems/chisel v1.10.1-os.2
 
-go 1.23.0
-
-toolchain go1.23.7
+go 1.23
