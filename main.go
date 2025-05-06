@@ -183,8 +183,12 @@ func client(args []string) {
 		log.Fatal(err)
 	}
 }
+
 func getURL(client *http.Client, requestLocation string) string {
-	resp, _ := client.Get(requestLocation)
+	resp, err := client.Get(requestLocation)
+	if err != nil {
+		log.Fatalf("Failed to fetch URL '%s': %v", requestLocation, err)
+	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusFound {
