@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"runtime"
 	"strconv"
@@ -185,7 +186,13 @@ func client(args []string) {
 }
 
 func getURL(client *http.Client, requestLocation string) string {
-	resp, err := client.Get(requestLocation)
+	// Parse and validate the URL
+	parsedURL, err := url.Parse(requestLocation)
+	if err != nil {
+		log.Fatalf("Invalid URL '%s': %v", requestLocation, err)
+	}
+
+	resp, err := client.Get(parsedURL.String())
 	if err != nil {
 		log.Fatalf("Failed to fetch URL '%s': %v", requestLocation, err)
 	}
