@@ -85,6 +85,7 @@ func Test_getURL(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Create a custom HTTP client with the mock RoundTripper
 			client := &http.Client{
 				Transport: &mockRoundTripper{
 					mockResponse: tt.mockResponse,

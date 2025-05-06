@@ -186,6 +186,10 @@ func client(args []string) {
 }
 
 func getURL(client *http.Client, requestLocation string) string {
+
+	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	}
 	// Parse and validate the URL
 	parsedURL, err := url.Parse(requestLocation)
 	if err != nil {
