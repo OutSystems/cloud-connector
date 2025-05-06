@@ -150,7 +150,11 @@ func client(args []string) {
 
 	queryParams := generateQueryParameters(localPorts)
 
-	config.Server = fmt.Sprintf("%s%s", args[0], queryParams)
+	//get server URL
+	httpClient := &http.Client{}
+	ServerURL := getURL(httpClient, args[0])
+
+	config.Server = fmt.Sprintf("%s%s", ServerURL, queryParams)
 	config.Remotes = args[1:]
 
 	//default auth
@@ -178,6 +182,15 @@ func client(args []string) {
 	if err := c.Wait(); err != nil {
 		log.Fatal(err)
 	}
+}
+func getURL(client *http.Client, requestLocation string) string {
+	resp, _ := client.Get(requestLocation)
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusFound {
+		return resp.Header.Get("Location")
+	}
+	return requestLocation
 }
 
 func generateQueryParameters(localPorts string) string {

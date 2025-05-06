@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"net/http"
+	"testing"
+)
 
 func Test_validateRemotes(t *testing.T) {
 
@@ -31,6 +34,66 @@ func Test_validateRemotes(t *testing.T) {
 			}
 			if got != tt.want {
 				t.Errorf("validateRemotes() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+// mockRoundTripper is a custom implementation of http.RoundTripper for mocking HTTP responses.
+type mockRoundTripper struct {
+	mockResponse func(req *http.Request) *http.Response
+}
+
+func (m *mockRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	return m.mockResponse(req), nil
+}
+
+func Test_getURL(t *testing.T) {
+	tests := []struct {
+		name            string
+		requestLocation string
+		mockResponse    func(req *http.Request) *http.Response
+		want            string
+	}{
+		{
+			name:            "valid location",
+			requestLocation: "https://service.us-east-1.example.com",
+			mockResponse: func(req *http.Request) *http.Response {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       http.NoBody,
+					Header:     make(http.Header),
+				}
+			},
+			want: "https://service.us-east-1.example.com",
+		},
+		{
+			name:            "302 redirect",
+			requestLocation: "https://service.us-east-1.example.com",
+			mockResponse: func(req *http.Request) *http.Response {
+				return &http.Response{
+					StatusCode: http.StatusFound,
+					Body:       http.NoBody,
+					Header: http.Header{
+						"Location": []string{"https://redirected.example.com"},
+					},
+				}
+			},
+			want: "https://redirected.example.com",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client := &http.Client{
+				Transport: &mockRoundTripper{
+					mockResponse: tt.mockResponse,
+				},
+			}
+
+			got := getURL(client, tt.requestLocation)
+			if got != tt.want {
+				t.Errorf("getURL() = %v, want %v", got, tt.want)
 			}
 		})
 	}
