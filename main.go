@@ -196,14 +196,24 @@ func getURL(client *http.Client, requestLocation string) string {
 		log.Fatalf("Invalid URL '%s': %v", requestLocation, err)
 	}
 
+	// Ensure the URL has a valid scheme
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		log.Fatalf("Unsupported URL scheme '%s' in URL: %s", parsedURL.Scheme, requestLocation)
+	}
+
 	resp, err := client.Get(parsedURL.String())
 	if err != nil {
 		log.Fatalf("Failed to fetch URL '%s': %v", requestLocation, err)
 	}
 	defer resp.Body.Close()
 
+	// Handle 302 redirects
 	if resp.StatusCode == http.StatusFound {
-		return resp.Header.Get("Location")
+		redirectURL := resp.Header.Get("Location")
+		if redirectURL == "" {
+			log.Fatalf("Redirect response missing 'Location' header")
+		}
+		return redirectURL
 	}
 	return requestLocation
 }
