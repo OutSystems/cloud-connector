@@ -15,6 +15,8 @@ import (
 
 	"math/rand"
 
+	"github.com/go-resty/resty/v2"
+
 	chclient "github.com/jpillora/chisel/client"
 	"github.com/jpillora/chisel/share/cos"
 	"github.com/jpillora/chisel/share/settings"
@@ -152,8 +154,9 @@ func client(args []string) {
 	queryParams := generateQueryParameters(localPorts)
 
 	//get server URL
-	httpClient := &http.Client{}
-	ServerURL := getURL(httpClient, args[0])
+	restyclient := resty.New()
+	//httpClient := &http.Client{}
+	ServerURL := getURL(restyclient, args[0])
 
 	config.Server = fmt.Sprintf("%s%s", ServerURL, queryParams)
 	config.Remotes = args[1:]
@@ -185,11 +188,9 @@ func client(args []string) {
 	}
 }
 
-func getURL(client *http.Client, requestLocation string) string {
+func getURL(client *resty.Client, requestLocation string) string {
 
-	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-		return http.ErrUseLastResponse
-	}
+	client.SetRedirectPolicy(resty.NoRedirectPolicy())
 	// Parse and validate the URL
 	parsedURL, err := url.Parse(requestLocation)
 	if err != nil {
@@ -201,20 +202,19 @@ func getURL(client *http.Client, requestLocation string) string {
 		log.Fatalf("Unsupported URL scheme '%s' in URL: %s", parsedURL.Scheme, requestLocation)
 	}
 
-	resp, err := client.Get(parsedURL.String())
+	resp, err := client.SetDoNotParseResponse(true).R().Get(parsedURL.String())
 	if err != nil {
-		log.Fatalf("Failed to fetch URL '%s': %v", requestLocation, err)
-	}
-	defer resp.Body.Close()
-
-	// Handle 302 redirects
-	if resp.StatusCode == http.StatusFound {
-		redirectURL := resp.Header.Get("Location")
-		if redirectURL == "" {
-			log.Fatalf("Redirect response missing 'Location' header")
+		if resp != nil && resp.StatusCode() == http.StatusFound {
+			redirectURL := resp.Header().Get("Location")
+			if redirectURL == "" {
+				log.Fatalf("Redirect response missing 'Location' header")
+			}
+			return redirectURL
+		} else {
+			log.Fatalf("Failed to fetch URL '%s': %v", requestLocation, err)
 		}
-		return redirectURL
 	}
+
 	return requestLocation
 }
 

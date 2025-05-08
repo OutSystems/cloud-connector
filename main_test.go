@@ -3,6 +3,9 @@ package main
 import (
 	"net/http"
 	"testing"
+
+	"github.com/go-resty/resty/v2"
+	"github.com/jarcoal/httpmock"
 )
 
 func Test_validateRemotes(t *testing.T) {
@@ -39,62 +42,67 @@ func Test_validateRemotes(t *testing.T) {
 	}
 }
 
-// mockRoundTripper is a custom implementation of http.RoundTripper for mocking HTTP responses.
-type mockRoundTripper struct {
-	mockResponse func(req *http.Request) *http.Response
-}
-
-func (m *mockRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	return m.mockResponse(req), nil
+type MockClient struct {
+	mockResponse *resty.Response
+	mockError    error
 }
 
 func Test_getURL(t *testing.T) {
 	tests := []struct {
-		name            string
-		requestLocation string
-		mockResponse    func(req *http.Request) *http.Response
-		want            string
+		name               string
+		requestLocation    string
+		responseStatusCode int
+		redirectLocation   string
+		want               string
 	}{
 		{
-			name:            "valid location",
-			requestLocation: "https://service.us-east-1.example.com",
-			mockResponse: func(req *http.Request) *http.Response {
-				return &http.Response{
-					StatusCode: http.StatusOK,
-					Body:       http.NoBody,
-					Header:     make(http.Header),
-				}
-			},
-			want: "https://service.us-east-1.example.com",
+			name:               "valid location",
+			requestLocation:    "https://service.us-east-1.example.com",
+			responseStatusCode: http.StatusOK,
+			redirectLocation:   "",
+			want:               "https://service.us-east-1.example.com",
 		},
 		{
-			name:            "302 redirect",
-			requestLocation: "https://service.us-east-1.example.com",
-			mockResponse: func(req *http.Request) *http.Response {
-				return &http.Response{
-					StatusCode: http.StatusFound,
-					Body:       http.NoBody,
-					Header: http.Header{
-						"Location": []string{"https://redirected.example.com"},
-					},
-				}
-			},
-			want: "https://redirected.example.com",
+			name:               "302 redirect",
+			requestLocation:    "https://service.us-east-1.example.com",
+			responseStatusCode: http.StatusFound,
+			redirectLocation:   "https://redirected.example.com",
+			want:               "https://redirected.example.com",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Create a custom HTTP client with the mock RoundTripper
-			client := &http.Client{
-				Transport: &mockRoundTripper{
-					mockResponse: tt.mockResponse,
-				},
+			client := resty.New()
+
+			// Activate httpmock for this client
+			httpmock.ActivateNonDefault(client.GetClient())
+			defer httpmock.DeactivateAndReset()
+
+			// Register a mocked response
+			if tt.responseStatusCode == http.StatusFound {
+				httpmock.RegisterResponder("GET", tt.requestLocation,
+					func(req *http.Request) (*http.Response, error) {
+						resp := httpmock.NewStringResponse(tt.responseStatusCode, "")
+						resp.Header.Set("Location", tt.redirectLocation)
+						return resp, nil
+					},
+				)
+			} else {
+				httpmock.RegisterResponder("GET", tt.requestLocation,
+					httpmock.NewStringResponder(tt.responseStatusCode, ""),
+				)
 			}
 
 			got := getURL(client, tt.requestLocation)
 			if got != tt.want {
 				t.Errorf("getURL() = %v, want %v", got, tt.want)
+			}
+			if tt.responseStatusCode == http.StatusFound {
+				// Check if the redirect location was set correctly
+				httpmock.RegisterResponder("GET", tt.requestLocation,
+					httpmock.NewStringResponder(tt.responseStatusCode, "Location: "+tt.redirectLocation),
+				)
 			}
 		})
 	}
