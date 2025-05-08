@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"runtime"
 	"strconv"
@@ -13,6 +14,8 @@ import (
 	"time"
 
 	"math/rand"
+
+	"github.com/go-resty/resty/v2"
 
 	chclient "github.com/jpillora/chisel/client"
 	"github.com/jpillora/chisel/share/cos"
@@ -150,7 +153,12 @@ func client(args []string) {
 
 	queryParams := generateQueryParameters(localPorts)
 
-	config.Server = fmt.Sprintf("%s%s", args[0], queryParams)
+	//get server URL
+	restyclient := resty.New()
+	//httpClient := &http.Client{}
+	ServerURL := getURL(restyclient, args[0])
+
+	config.Server = fmt.Sprintf("%s%s", ServerURL, queryParams)
 	config.Remotes = args[1:]
 
 	//default auth
@@ -178,6 +186,36 @@ func client(args []string) {
 	if err := c.Wait(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func getURL(client *resty.Client, requestLocation string) string {
+
+	client.SetRedirectPolicy(resty.NoRedirectPolicy())
+	// Parse and validate the URL
+	parsedURL, err := url.Parse(requestLocation)
+	if err != nil {
+		log.Fatalf("Invalid URL '%s': %v", requestLocation, err)
+	}
+
+	// Ensure the URL has a valid scheme
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		log.Fatalf("Unsupported URL scheme '%s' in URL: %s", parsedURL.Scheme, requestLocation)
+	}
+
+	resp, err := client.SetDoNotParseResponse(true).R().Get(parsedURL.String())
+	if err != nil {
+		if resp != nil && resp.StatusCode() == http.StatusFound {
+			redirectURL := resp.Header().Get("Location")
+			if redirectURL == "" {
+				log.Fatalf("Redirect response missing 'Location' header")
+			}
+			return redirectURL
+		} else {
+			log.Fatalf("Failed to fetch URL '%s': %v", requestLocation, err)
+		}
+	}
+
+	return requestLocation
 }
 
 func generateQueryParameters(localPorts string) string {
