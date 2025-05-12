@@ -155,10 +155,9 @@ func client(args []string) {
 
 	//get server URL
 	restyclient := resty.New()
-	//httpClient := &http.Client{}
-	ServerURL := getURL(restyclient, args[0])
+	serverURL := getURL(restyclient, args[0])
 
-	config.Server = fmt.Sprintf("%s%s", ServerURL, queryParams)
+	config.Server = fmt.Sprintf("%s%s", serverURL, queryParams)
 	config.Remotes = args[1:]
 
 	//default auth
