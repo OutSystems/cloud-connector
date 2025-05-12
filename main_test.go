@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"testing"
 
+	"strings"
+
 	"github.com/go-resty/resty/v2"
 	"github.com/jarcoal/httpmock"
 )
@@ -42,11 +44,6 @@ func Test_validateRemotes(t *testing.T) {
 	}
 }
 
-type MockClient struct {
-	mockResponse *resty.Response
-	mockError    error
-}
-
 func Test_getURL(t *testing.T) {
 	tests := []struct {
 		name               string
@@ -62,9 +59,24 @@ func Test_getURL(t *testing.T) {
 			redirectLocation:   "",
 			want:               "https://service.us-east-1.example.com",
 		},
+
+		{
+			name:               "valid location - no scheme",
+			requestLocation:    "service.us-east-1.example.com",
+			responseStatusCode: http.StatusOK,
+			redirectLocation:   "",
+			want:               "http://service.us-east-1.example.com",
+		},
 		{
 			name:               "302 redirect",
 			requestLocation:    "https://service.us-east-1.example.com",
+			responseStatusCode: http.StatusFound,
+			redirectLocation:   "https://redirected.example.com",
+			want:               "https://redirected.example.com",
+		},
+		{
+			name:               "302 redirect - no scheme",
+			requestLocation:    "service.us-east-1.example.com",
 			responseStatusCode: http.StatusFound,
 			redirectLocation:   "https://redirected.example.com",
 			want:               "https://redirected.example.com",
@@ -78,29 +90,28 @@ func Test_getURL(t *testing.T) {
 			// Activate httpmock for this client
 			httpmock.ActivateNonDefault(client.GetClient())
 			defer httpmock.DeactivateAndReset()
+			requestLocation := tt.requestLocation
 
-			// Register a mocked response
-			if tt.responseStatusCode == http.StatusFound {
-				httpmock.RegisterResponder("GET", tt.requestLocation,
-					func(req *http.Request) (*http.Response, error) {
-						resp := httpmock.NewStringResponse(tt.responseStatusCode, "")
-						resp.Header.Set("Location", tt.redirectLocation)
-						return resp, nil
-					},
-				)
-			} else {
-				httpmock.RegisterResponder("GET", tt.requestLocation,
-					httpmock.NewStringResponder(tt.responseStatusCode, ""),
-				)
+			if !strings.HasPrefix(tt.requestLocation, "http") {
+				requestLocation = "http://" + requestLocation
 			}
 
-			got := getURL(client, tt.requestLocation)
+			// Register a mocked response
+			httpmock.RegisterResponder("GET", requestLocation,
+				func(req *http.Request) (*http.Response, error) {
+					resp := httpmock.NewStringResponse(tt.responseStatusCode, "")
+					resp.Header.Set("Location", tt.redirectLocation)
+					return resp, nil
+				},
+			)
+
+			got := fetchURL(client, requestLocation)
 			if got != tt.want {
 				t.Errorf("getURL() = %v, want %v", got, tt.want)
 			}
 			if tt.responseStatusCode == http.StatusFound {
 				// Check if the redirect location was set correctly
-				httpmock.RegisterResponder("GET", tt.requestLocation,
+				httpmock.RegisterResponder("GET", requestLocation,
 					httpmock.NewStringResponder(tt.responseStatusCode, "Location: "+tt.redirectLocation),
 				)
 			}
