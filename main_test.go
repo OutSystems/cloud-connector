@@ -90,14 +90,14 @@ func Test_getURL(t *testing.T) {
 			// Activate httpmock for this client
 			httpmock.ActivateNonDefault(client.GetClient())
 			defer httpmock.DeactivateAndReset()
-			requestLocation := tt.requestLocation
+			mockRequestLocation := tt.requestLocation
 
 			if !strings.HasPrefix(tt.requestLocation, "http") {
-				requestLocation = "http://" + requestLocation
+				mockRequestLocation = "http://" + mockRequestLocation
 			}
 
 			// Register a mocked response
-			httpmock.RegisterResponder("GET", requestLocation,
+			httpmock.RegisterResponder("GET", mockRequestLocation,
 				func(req *http.Request) (*http.Response, error) {
 					resp := httpmock.NewStringResponse(tt.responseStatusCode, "")
 					resp.Header.Set("Location", tt.redirectLocation)
@@ -105,13 +105,13 @@ func Test_getURL(t *testing.T) {
 				},
 			)
 
-			got := fetchURL(client, requestLocation)
+			got := fetchURL(client, tt.requestLocation)
 			if got != tt.want {
 				t.Errorf("getURL() = %v, want %v", got, tt.want)
 			}
 			if tt.responseStatusCode == http.StatusFound {
 				// Check if the redirect location was set correctly
-				httpmock.RegisterResponder("GET", requestLocation,
+				httpmock.RegisterResponder("GET", mockRequestLocation,
 					httpmock.NewStringResponder(tt.responseStatusCode, "Location: "+tt.redirectLocation),
 				)
 			}
