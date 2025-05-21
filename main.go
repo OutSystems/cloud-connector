@@ -139,7 +139,7 @@ func client(args []string) {
 
 	// Set custom User-Agent
 	if config.Headers.Get("User-Agent") == "" {
-		config.Headers.Set("User-Agent", fmt.Sprintf("Go-http-client/1.1 CloudConnector/%s", version))
+		config.Headers.Set("User-Agent", fmt.Sprintf("Go-http-client/1.1--CloudConnector/%s", version))
 	}
 
 	//pull out options, put back remaining args
