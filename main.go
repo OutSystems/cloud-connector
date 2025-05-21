@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -29,7 +28,7 @@ func main() {
 
 func generatePidFile() {
 	pid := []byte(strconv.Itoa(os.Getpid()))
-	if err := ioutil.WriteFile("outsystemscc.pid", pid, 0644); err != nil {
+	if err := os.WriteFile("outsystemscc.pid", pid, 0644); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -49,7 +48,7 @@ func (flag *headerFlags) String() string {
 func (flag *headerFlags) Set(arg string) error {
 	index := strings.Index(arg, ":")
 	if index < 0 {
-		return fmt.Errorf(`Invalid header (%s). Should be in the format "HeaderName: HeaderContent"`, arg)
+		return fmt.Errorf(`invalid header (%s). Should be in the format "HeaderName: HeaderContent"`, arg)
 	}
 	if flag.Header == nil {
 		flag.Header = http.Header{}
@@ -137,6 +136,12 @@ func client(args []string) {
 		os.Exit(0)
 	}
 	flags.Parse(args)
+
+	// Set custom User-Agent
+	if config.Headers.Get("User-Agent") == "" {
+		config.Headers.Set("User-Agent", fmt.Sprintf("Go-http-client/1.1 CloudConnector/%s", version))
+	}
+
 	//pull out options, put back remaining args
 	args = flags.Args()
 	if len(args) < 2 {
