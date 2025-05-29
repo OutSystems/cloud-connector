@@ -13,6 +13,8 @@ import (
 
 	"math/rand"
 
+	"github.com/go-resty/resty/v2"
+
 	chclient "github.com/jpillora/chisel/client"
 	"github.com/jpillora/chisel/share/cos"
 	"github.com/jpillora/chisel/share/settings"
@@ -155,7 +157,10 @@ func client(args []string) {
 
 	queryParams := generateQueryParameters(localPorts)
 
-	config.Server = fmt.Sprintf("%s%s", args[0], queryParams)
+	//get server URL
+	serverURL := fetchURL(resty.New(), args[0])
+
+	config.Server = fmt.Sprintf("%s%s", serverURL, queryParams)
 	config.Remotes = args[1:]
 
 	//default auth
@@ -183,6 +188,30 @@ func client(args []string) {
 	if err := c.Wait(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func fetchURL(client *resty.Client, requestLocation string) string {
+
+	client.SetRedirectPolicy(resty.NoRedirectPolicy())
+
+	if !strings.HasPrefix(requestLocation, "http") {
+		requestLocation = "http://" + requestLocation
+	}
+
+	resp, err := client.SetDoNotParseResponse(true).R().Get(requestLocation)
+	if err != nil {
+		if resp != nil && resp.StatusCode() == http.StatusFound {
+			redirectURL := resp.Header().Get("Location")
+			if redirectURL == "" {
+				log.Fatalf("Redirect response missing 'Location' header")
+			}
+			return redirectURL
+		} else {
+			log.Fatalf("Failed to fetch URL '%s': %v", requestLocation, err)
+		}
+	}
+
+	return requestLocation
 }
 
 func generateQueryParameters(localPorts string) string {
