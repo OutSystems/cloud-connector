@@ -140,9 +140,7 @@ func client(args []string) {
 	flags.Parse(args)
 
 	// Set custom User-Agent
-	if config.Headers.Get("User-Agent") == "" {
-		config.Headers.Set("User-Agent", fmt.Sprintf("CloudConnector/%s", version))
-	}
+	config.Headers.Set("User-Agent", fmt.Sprintf("CloudConnector/%s", version))
 
 	//pull out options, put back remaining args
 	args = flags.Args()
