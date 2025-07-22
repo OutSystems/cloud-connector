@@ -11,9 +11,7 @@ builds:
   - env:
       - CGO_ENABLED=0
     goos:
-      - linux
-    ldflags:
-      - "-s -w -X main.version={{ .Version }}"       
+      - linux      
 dockers: 
   - image_templates: 
     - "ghcr.io/outsystems/{{ .ProjectName }}:{{ .Version }}"
