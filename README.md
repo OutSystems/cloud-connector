@@ -43,8 +43,8 @@ _Minimum system requirement per `outsystemscc` instance: 2 GB RAM, 2x 1GHz+ CPU.
 To install, use either the binary or Docker option. Run the binary on Linux, or use the Docker image on any OS that supports Docker. Running `outsystemscc` as a Docker image offers several advantages if your system supports it:
 
 * You always run the latest release. You don't need to reinstall each new release.
-* You can run `outsystemscc` on Windows or any system that supports Docker:
-    * Otherwise, you need to install Windows Subsystem for Linux (WSL) on Windows to use the `outsystemscc` Linux binary.
+* You can run `outsystemscc` on any Linux/Windows(within a WSL environment) system that supports Docker:
+    * For example, if you are using Windows, you can run `outsystemscc` within Windows Subsystem for Linux (WSL), where you can pull and run the Docker image directly from the WSL environment.
 * Without additional configuration `outsystemscc` starts with the Docker daemon on system boot.
 * For advanced use cases, you can use Kubernetes for orchestration.
 
@@ -53,6 +53,8 @@ After install, ensure you configure the firewall for the private network(s) corr
 ### <a name="binary"></a> Binary
 
 Download the latest release from the [releases page](https://github.com/OutSystems/cloud-connector/releases/latest). There are precompiled binaries available for Linux on i386 (32-bit), amd64 (64-bit), and arm64 (64-bit). You can run the binary on any Windows version that supports [WSL](https://docs.microsoft.com/en-us/windows/wsl/).
+
+⚠️ **Note**: Some antivirus software may incorrectly flag the `outsystemscc` binary as malicious. This is a known false positive. If your organization’s security policies permit, you can safely proceed by adding an exception in your antivirus software.
 
 To install, unzip/untar the package and then copy the binary to the desired location. For example:
 
