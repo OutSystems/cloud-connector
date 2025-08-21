@@ -12,12 +12,12 @@ require (
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/jpillora/sizestr v1.0.0 // indirect
-	golang.org/x/crypto v0.40.0 // indirect
-	golang.org/x/net v0.42.0 // indirect
+	golang.org/x/crypto v0.41.0 // indirect
+	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect
-	golang.org/x/sys v0.34.0 // indirect
+	golang.org/x/sys v0.35.0 // indirect
 )
 
-replace github.com/jpillora/chisel => github.com/outsystems/chisel v1.10.1-os.6
+replace github.com/jpillora/chisel => github.com/outsystems/chisel v1.10.1-os.8
 
-go 1.23.8
+go 1.24.6

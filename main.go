@@ -104,9 +104,6 @@ var clientHelp = `
     --header, Set a custom header in the form "HeaderName: HeaderContent". 
 	Use the Token displayed on ODC Portal in using token as HeaderName.
 
-    --hostname, Optionally set the 'Host' header (defaults to the host
-    found in the server url).
-
 	--pid Generate pid file in current working directory
 
     -v, Enable verbose logging
@@ -130,7 +127,7 @@ func client(args []string) {
 	flags.DurationVar(&config.MaxRetryInterval, "max-retry-interval", 0, "")
 	flags.StringVar(&config.Proxy, "proxy", "", "")
 	flags.Var(&headerFlags{config.Headers}, "header", "")
-	hostname := flags.String("hostname", "", "")
+	hostname := flags.String("hostname", "", "Deprecated, will be ignored")
 	pid := flags.Bool("pid", false, "")
 	verbose := flags.Bool("v", false, "")
 	flags.Usage = func() {
@@ -169,7 +166,8 @@ func client(args []string) {
 	}
 	//move hostname onto headers
 	if *hostname != "" {
-		config.Headers.Set("Host", *hostname)
+		log.Printf("[WARN] The --hostname flag will be removed in a future release. Please consider removing it to avoid breaking changes.\n" +
+			"Please specify the correct server URL directly instead.\n")
 	}
 	//ready
 	c, err := chclient.NewClient(&config)

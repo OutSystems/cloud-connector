@@ -200,9 +200,6 @@ If your organization uses a centralized log management product, see its document
         --header, Set a custom header in the form "HeaderName: HeaderContent". 
         Use the Token displayed on ODC Portal in using token as HeaderName.
         
-        --hostname, Optionally set the 'Host' header (defaults to the host
-        found in the server url).
-
         --pid Generate pid file in current working directory
 
         -v, Enable verbose logging
