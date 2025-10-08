@@ -107,6 +107,8 @@ After successfully activating the private gateway for a stage in the ODC Portal,
 
 > :information_source: Please note: As of version 2.0.0, there are two different Address URLs: one for newer versions of Cloud Connector, and one for versions before version v2.0.0. Take care to use the correct Address, and if updating to a newer version of Cloud Connector from a version prior to 2.0.0, please change your URL.
 
+> :note: **Important for environments using proxy configurations**: For environments using proxy configurations, use version 2.0.3+ for full backward compatibility with v1.x proxy behavior. Versions 2.0.0-2.0.2 have a known issue with proxy handling that has been resolved in 2.0.3+.
+
 > :information_source: Make sure to copy the Token and save it in a safe location. For security reasons, you won't be able to access it again after you close or refresh the page.
 
 Use the **Token** and **Address** to form the `outsystemscc` command to run. For example:
