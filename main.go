@@ -155,7 +155,7 @@ func client(args []string) {
 	queryParams := generateQueryParameters(localPorts)
 
 	//get server URL
-	serverURL := fetchURL(resty.New(), args[0])
+	serverURL := fetchURL(createHTTPClient(&config), args[0])
 
 	config.Server = fmt.Sprintf("%s%s", serverURL, queryParams)
 	config.Remotes = args[1:]
@@ -186,6 +186,17 @@ func client(args []string) {
 	if err := c.Wait(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func createHTTPClient(config *chclient.Config) *resty.Client {
+	client := resty.New()
+
+	// Set proxy if configured
+	if config.Proxy != "" {
+		client.SetProxy(config.Proxy)
+	}
+
+	return client
 }
 
 func fetchURL(client *resty.Client, requestLocation string) string {
