@@ -1,11 +1,17 @@
 version: 2
 updates:
-  - package-ecosystem: gomod
-    directory: /
+  - package-ecosystem: "gomod"
+    directory: "/"
     schedule:
-      interval: weekly
-    allow:
-      # Allow both direct and indirect updates for all packages
-      - dependency-type: "all"
-    rebase-strategy: "disabled"
+      interval: "monthly"
+      day: "monday"
     open-pull-requests-limit: 10
+    rebase-strategy: "disabled"
+    commit-message:
+      prefix: "RDODCP-198"
+    allow:
+      - dependency-type: "all"
+    groups:
+      AllDependencies:
+        patterns:
+          - "*"
