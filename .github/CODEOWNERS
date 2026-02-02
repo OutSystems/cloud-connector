@@ -1,4 +1,3 @@
 # https://help.github.com/articles/about-codeowners/
 
-# Global reviewers
-* @OutSystems/global-routing-and-security @OutSystems/cloud-enablement-services
+* @OutSystems/cloud-enablement-services
