@@ -1,5 +1,4 @@
 # Dockerfile
-FROM alpine
-RUN apk update && apk upgrade
+FROM gcr.io/distroless/static:nonroot
 COPY outsystemscc /app/
 ENTRYPOINT ["/app/outsystemscc"]
