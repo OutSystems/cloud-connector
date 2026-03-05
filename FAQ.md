@@ -29,6 +29,12 @@ The key parameters used in the command:
 
 Ensure to replace `[ResourceGroupName]`, `[ContainerName]`, and the values in the `--command-line` parameter with your actual values.
 
+#### Azure configuration page
+
+If configuring the container instance manually, each attribute in the Attributes Override should separated by a space, and the token does not require quotes. For example:
+
+    --header, token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy, https://organization.outsystems.app/sg_f5696918-3a8c-4da8-8079-ef768d5479fd, R:8081:192.168.0.3:8393
+
 #### Network configuration
 
 * **Outbound Access to Internet:** Ensure that the Azure Resource Group in which you are deploying `outsystemscc` has outbound access to the Internet with no greater restriction than specified in [Firewall setup](#firewall-setup). This is crucial for `outsystemscc` to communicate with your ODC organization. You may need to configure your Network Security Groups (NSGs), Azure Firewall, or whichever network security solution you have in place to allow outbound connections.
