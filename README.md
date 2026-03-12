@@ -84,11 +84,34 @@ If you're running the container on a runtime where you need to specify the comma
 
 ### <a name="firewall-setup"></a> Firewall setup
 
-`outsystemscc` requires only outbound access to the internet in the private network(s) in which it's running.
+The OutSystems Cloud Connector establishes an outbound secure WebSocket (WSS) connection over HTTPS (TCP 443) to the Private Gateway endpoint provided in the OutSystems Portal during the Private Gateway setup.
 
-You can restrict outbound internet connectivity (via a NAT Gateway, for example) by a firewall. For a Layer 7 firewall, you should allow outbound connections to the built-in domain (for example `<organization>.outsystems.app`) and any custom domains configured for the stage (for example `example.com`). For a Layer 4 firewall, you must open firewall rules to all [CloudFront IP ranges](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/LocationsOfEdgeServers.html) for port 443.
+No inbound firewall rules are required. The connector only needs the ability to initiate outbound connections.
 
 If the network requires outbound traffic to route through a proxy, you specify that using the `--proxy` option.
+
+#### Layer 7 (Application-Level) Firewalls
+
+If your network uses a Layer 7 firewall or proxy, allow outbound HTTPS traffic to the Private Gateway address provided in the OutSystems portal during the Private Gateway setup.
+
+Example: `https://<private-gateway-address>:443`
+
+The Cloud Connector will establish a WebSocket Secure (WSS) connection to this endpoint. Ensure that WebSocket upgrades are allowed by the firewall or proxy.
+
+#### Layer 4 (Network-Level) Firewalls
+
+If your network uses a Layer 4 firewall that filters by IP address, allow outbound TCP traffic on port 443 to the IP addresses associated with the Private Gateway address provided during setup.
+
+To determine the current IP addresses, perform a DNS lookup on the Private Gateway address:
+
+Example: `nslookup <private-gateway-address>`
+
+This command returns the IP addresses that should be allowed by the firewall.
+
+Because these IP addresses may change over time, it is recommended to:
+
+- Prefer Layer 7 rules based on hostname, when possible.
+- Periodically refresh the IP allowlist if using Layer 4 filtering.
 
 > :bulb: There may be a dedicated person or team at your organization responsible for administering network firewalls. If so, you may want to contact them for help with the process.
 
