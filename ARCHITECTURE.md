@@ -43,7 +43,7 @@ The entire application lives in a single Go package (`main`) with two source fil
 cloud-connector/
   main.go          -- CLI entry point and all application logic
   main_test.go     -- Unit tests for remote validation and URL fetching
-  Dockerfile       -- Alpine-based container image
+  Dockerfile       -- Distroless-based container image
   .goreleaser.yaml -- Build and release configuration (Linux binaries + Docker)
   go.mod / go.sum  -- Go module definition
 ```
@@ -96,7 +96,7 @@ The `replace` directive in `go.mod` pins chisel to the OutSystems fork, which co
 - Linux binaries for `386`, `amd64`, and `arm64`
 - A Docker image published to `ghcr.io/outsystems/outsystemscc`
 
-The Docker image is a minimal Alpine container with the static binary copied to `/app/outsystemscc`.
+The Docker image is a minimal Distroless container with the static binary copied to `/app/outsystemscc`.
 
 **Dependabot** runs monthly to keep Go module dependencies up to date.
 
