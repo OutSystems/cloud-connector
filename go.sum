@@ -16,8 +16,8 @@ github.com/jpillora/sizestr v1.0.0 h1:4tr0FLxs1Mtq3TnsLDV+GYUWG7Q26a6s+tV5Zfw2yg
 github.com/jpillora/sizestr v1.0.0/go.mod h1:bUhLv4ctkknatr6gR42qPxirmd5+ds1u7mzD+MZ33f0=
 github.com/maxatome/go-testdeep v1.14.0 h1:rRlLv1+kI8eOI3OaBXZwb3O7xY3exRzdW5QyX48g9wI=
 github.com/maxatome/go-testdeep v1.14.0/go.mod h1:lPZc/HAcJMP92l7yI6TRz1aZN5URwUBUAfUNvrclaNM=
-github.com/outsystems/chisel v1.11.3-os.4 h1:bu/78CgbiP+H/wv8Om8xoTGu8X709MKolWgJlvNe1K0=
-github.com/outsystems/chisel v1.11.3-os.4/go.mod h1:K6ZHiv3C5gqF5NtV/tY+ZyJCJfg2wl1SKCJPsLiGlzI=
+github.com/outsystems/chisel v1.11.3-os.5 h1:OuD489iHyJxuhFON8m2eFZzqP7p8sTwJ9aU/ajdW1RU=
+github.com/outsystems/chisel v1.11.3-os.5/go.mod h1:Kp8ydUYrGo/GEDjWjSXSLtAR4+FSVaAAeAB4oFlH9ic=
 golang.org/x/crypto v0.49.0 h1:+Ng2ULVvLHnJ/ZFEq4KdcDd/cfjrrjjNSXNzxg0Y4U4=
 golang.org/x/crypto v0.49.0/go.mod h1:ErX4dUh2UM+CFYiXZRTcMpEcN8b/1gxEuv3nODoYtCA=
 golang.org/x/net v0.52.0 h1:He/TN1l0e4mmR3QqHMT2Xab3Aj3L9qjbhRm78/6jrW0=
