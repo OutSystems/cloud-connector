@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -14,6 +15,7 @@ import (
 	"math/rand"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/google/uuid"
 
 	chclient "github.com/jpillora/chisel/client"
 	"github.com/jpillora/chisel/share/cos"
@@ -61,6 +63,67 @@ func (flag *headerFlags) Set(arg string) error {
 	return nil
 }
 
+type jsonEvent struct {
+	CorrelationID     string      `json:"correlation_id"`
+	Time              float64     `json:"time"`
+	Host              string      `json:"host"`
+	Source            string      `json:"source"`
+	Sourcetype        string      `json:"source_type"`
+	Event             tunnelEvent `json:"event"`
+}
+
+type tunnelEvent struct {
+	Version          string   `json:"version"`
+	EventType        string   `json:"event_type"`
+	Server           string   `json:"server"`
+	Remotes          []string `json:"remotes"`
+	DestinationHosts []string `json:"destination_hosts"`
+	Status           string   `json:"status"`
+	LatencyMs        *int64   `json:"latency_ms"` // null when not yet known
+	Error            *string  `json:"error"`      // null on success
+}
+
+func emitObsEvent(correlationID, eventType, status, server string, remotes []string,
+	destHosts []string, latencyMs *int64, obsErr *string) {
+	hostname, _ := os.Hostname()
+	if hostname == "" {
+		hostname = "unknown"
+	}
+	ev := jsonEvent{
+		CorrelationID: 	 correlationID,
+		Time:            float64(time.Now().UnixMilli()) / 1000.0,
+		Host:            hostname,
+		Source:          "outsystemscc",
+		Sourcetype:      "outsystemscc:tunnel",
+		Event: tunnelEvent{
+			Version:          version,
+			EventType:        eventType,
+			Server:           server,
+			Remotes:          remotes,
+			DestinationHosts: destHosts,
+			Status:           status,
+			LatencyMs:        latencyMs,
+			Error:            obsErr,
+		},
+	}
+	data, err := json.Marshal(ev)
+	if err != nil {
+		log.Printf("[WARN] observability: failed to marshal event: %v\n", err)
+		return
+	}
+	fmt.Println(string(data))
+}
+
+func extractDestinationHosts(remotes []string) []string {
+	hosts := make([]string, 0, len(remotes))
+	for _, r := range remotes {
+		if decoded, err := settings.DecodeRemote(r); err == nil {
+			hosts = append(hosts, decoded.RemoteHost)
+		}
+	}
+	return hosts
+}
+
 var clientHelp = `
   Usage: outsystemscc [options] <server> <remote> [remote] [remote] ...
 
@@ -106,6 +169,10 @@ var clientHelp = `
 
 	--pid Generate pid file in current working directory
 
+    -o, Emit JSON events to stdout at key tunnel lifecycle points (starting,
+	connected, disconnected, error). Each event is a single-line JSON object
+	including destination hosts, connection status, and latency.
+
     -v, Enable verbose logging
 
     --help, This help text
@@ -130,6 +197,7 @@ func client(args []string) {
 	hostname := flags.String("hostname", "", "Deprecated, will be ignored")
 	pid := flags.Bool("pid", false, "")
 	verbose := flags.Bool("v", false, "")
+	observability := flags.Bool("o", false, "")
 	flags.Usage = func() {
 		fmt.Print(clientHelp)
 		os.Exit(0)
@@ -160,6 +228,14 @@ func client(args []string) {
 	config.Server = fmt.Sprintf("%s%s", serverURL, queryParams)
 	config.Remotes = args[1:]
 
+	var destHosts []string
+	var correlationID string
+	if *observability {
+		destHosts = extractDestinationHosts(args[1:])
+		correlationID = uuid.New().String()
+		emitObsEvent(correlationID, "tunnel_starting", "starting", serverURL, args[1:], destHosts, nil, nil)
+	}
+
 	//default auth
 	if config.Auth == "" {
 		config.Auth = os.Getenv("AUTH")
@@ -180,11 +256,27 @@ func client(args []string) {
 	}
 	go cos.GoStats()
 	ctx := cos.InterruptContext()
+	connectStart := time.Now()
 	if err := c.Start(ctx); err != nil {
+		if *observability {
+			errStr := err.Error()
+			emitObsEvent(correlationID, "tunnel_error", "error", serverURL, args[1:], destHosts, nil, &errStr)
+		}
 		log.Fatal(err)
 	}
+	if *observability {
+		ms := time.Since(connectStart).Milliseconds()
+		emitObsEvent(correlationID, "tunnel_connected", "connected", serverURL, args[1:], destHosts, &ms, nil)
+	}
 	if err := c.Wait(); err != nil {
+		if *observability {
+			errStr := err.Error()
+			emitObsEvent(correlationID, "tunnel_error", "error", serverURL, args[1:], destHosts, nil, &errStr)
+		}
 		log.Fatal(err)
+	}
+	if *observability {
+		emitObsEvent(correlationID, "tunnel_disconnected", "disconnected", serverURL, args[1:], destHosts, nil, nil)
 	}
 }
 
