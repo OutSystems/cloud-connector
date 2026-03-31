@@ -65,7 +65,7 @@ func (flag *headerFlags) Set(arg string) error {
 
 type jsonEvent struct {
 	CorrelationID  string      `json:"correlation_id"`
-	Time           float64     `json:"time"`
+	Time           int64       `json:"time"`
 	Host           string      `json:"host"`
 	Source         string      `json:"source"`
 	Sourcetype     string      `json:"source_type"`
@@ -77,19 +77,19 @@ type tunnelEvent struct {
 	Server         string   `json:"server"`
 	Remotes   	   []string `json:"remotes"`
 	Status         string   `json:"status"`
-	LatencyMs      *int64   `json:"latency_ms"` // null when not yet known
+	Latency        *string  `json:"latency"`    // null when not yet known
 	Error          *string  `json:"error"`      // null on success
 }
 
 func emitObsEvent(correlationID, status, server string, remotes []string,
-	latencyMs *int64, obsErr *string) {
+	latency *string, obsErr *string) {
 	hostname, _ := os.Hostname()
 	if hostname == "" {
 		hostname = "unknown"
 	}
 	ev := jsonEvent{
 		CorrelationID: 	 correlationID,
-		Time:            float64(time.Now().UnixMilli()) / 1000.0,
+		Time:            time.Now().UnixNano(),
 		Host:            hostname,
 		Source:          "outsystemscc",
 		Sourcetype:      "outsystemscc:tunnel",
@@ -98,7 +98,7 @@ func emitObsEvent(correlationID, status, server string, remotes []string,
 			Server:    server,
 			Remotes:   remotes,
 			Status:    status,
-			LatencyMs: latencyMs,
+			Latency:   latency,
 			Error:     obsErr,
 		},
 	}
@@ -249,7 +249,7 @@ func client(args []string) {
 		log.Fatal(err)
 	}
 	if *observability {
-		ms := time.Since(connectStart).Milliseconds()
+		ms := time.Since(connectStart).String()
 		emitObsEvent(correlationID, "connected", serverURL, args[1:], &ms, nil)
 	}
 	if err := c.Wait(); err != nil {

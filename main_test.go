@@ -19,10 +19,10 @@ func Test_emitObsEvent(t *testing.T) {
 		status      string
 		server      string
 		remotes     []string
-		latencyMs   *int64
+		latency     *string
 		obsErr      *string
 		wantStatus  string
-		wantLatency bool // true = expect non-null latency_ms
+		wantLatency bool // true = expect non-null latency (JSON key "latency")
 		wantErr     bool // true = expect non-null error
 	}{
 		{
@@ -30,7 +30,7 @@ func Test_emitObsEvent(t *testing.T) {
 			status:      "starting",
 			server:      "wss://pg.example.com",
 			remotes:     []string{"R:8081:db.internal:5432"},
-			latencyMs:   nil,
+			latency:     nil,
 			obsErr:      nil,
 			wantStatus:  "starting",
 			wantLatency: false,
@@ -41,7 +41,7 @@ func Test_emitObsEvent(t *testing.T) {
 			status:      "connected",
 			server:      "wss://pg.example.com",
 			remotes:     []string{"R:8081:db.internal:5432"},
-			latencyMs:   func() *int64 { v := int64(266); return &v }(),
+			latency:     func() *string { s := "266ms"; return &s }(),
 			obsErr:      nil,
 			wantStatus:  "connected",
 			wantLatency: true,
@@ -52,7 +52,7 @@ func Test_emitObsEvent(t *testing.T) {
 			status:      "error",
 			server:      "wss://pg.example.com",
 			remotes:     []string{"R:8081:db.internal:5432"},
-			latencyMs:   nil,
+			latency:     nil,
 			obsErr:      func() *string { s := "connection refused"; return &s }(),
 			wantStatus:  "error",
 			wantLatency: false,
@@ -71,7 +71,7 @@ func Test_emitObsEvent(t *testing.T) {
 			os.Stdout = w
 
 			// Act
-			emitObsEvent(testCorrelationID, tt.status, tt.server, tt.remotes, tt.latencyMs, tt.obsErr)
+			emitObsEvent(testCorrelationID, tt.status, tt.server, tt.remotes, tt.latency, tt.obsErr)
 
 			// Restore stdout and read output
 			w.Close()
@@ -102,11 +102,14 @@ func Test_emitObsEvent(t *testing.T) {
 			if ev.Event.Status != tt.wantStatus {
 				t.Errorf("status = %q, want %q", ev.Event.Status, tt.wantStatus)
 			}
-			if tt.wantLatency && ev.Event.LatencyMs == nil {
-				t.Errorf("latency_ms is nil, want non-nil")
+			if tt.wantLatency && ev.Event.Latency == nil {
+				t.Errorf("latency is nil, want non-nil")
 			}
-			if !tt.wantLatency && ev.Event.LatencyMs != nil {
-				t.Errorf("latency_ms = %v, want nil", *ev.Event.LatencyMs)
+			if !tt.wantLatency && ev.Event.Latency != nil {
+				t.Errorf("latency = %q, want nil", *ev.Event.Latency)
+			}
+			if tt.latency != nil && ev.Event.Latency != nil && *ev.Event.Latency != *tt.latency {
+				t.Errorf("latency = %q, want %q", *ev.Event.Latency, *tt.latency)
 			}
 			if tt.wantErr && ev.Event.Error == nil {
 				t.Errorf("error is nil, want non-nil")

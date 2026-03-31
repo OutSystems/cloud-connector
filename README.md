@@ -190,7 +190,7 @@ Top-level fields on every line:
 | Field | Meaning |
 | --- | --- |
 | `correlation_id` | UUID for this connector run |
-| `time` | Unix time in seconds with fractional part |
+| `time` | Unix time in nanoseconds |
 | `host` | Hostname of the machine running `outsystemscc` |
 | `source` | Always `outsystemscc` |
 | `source_type` | Always `outsystemscc:tunnel` |
@@ -204,7 +204,7 @@ The nested **`event`** object contains:
 | `status` | Lifecycle state: `starting`, `connected`, `disconnected`, or `error` |
 | `server` | Resolved Private Gateway server URL used for the tunnel |
 | `remotes` | Remote specs as passed on the command line (e.g. `R:8081:10.0.0.1:8393`) |
-| `latency_ms` | Round-trip time in ms when connected; `null` if not applicable |
+| `latency` | Round-trip time when connected; `null` if not applicable |
 | `error` | Error message string on failure; `null` on success |
 
 Example with observability enabled (token and URL are illustrative):
