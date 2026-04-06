@@ -89,7 +89,7 @@ func emitObsEvent(correlationID, status, server string, remotes []string,
 	}
 	ev := jsonEvent{
 		CorrelationID: 	 correlationID,
-		Time:            time.Now().UnixNano(),
+		Time:            time.Now().UnixMilli(),
 		Host:            hostname,
 		Source:          "outsystemscc",
 		Sourcetype:      "outsystemscc:tunnel",
