@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
+	"os"
 	"testing"
 
 	"strings"
@@ -9,6 +11,115 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/jarcoal/httpmock"
 )
+
+func Test_emitObsEvent(t *testing.T) {
+	const testCorrelationID = "550e8400-e29b-41d4-a716-446655440000"
+	tests := []struct {
+		name        string
+		status      string
+		server      string
+		remotes     []string
+		latency     *string
+		obsErr      *string
+		wantStatus  string
+		wantLatency bool // true = expect non-null latency (JSON key "latency")
+		wantErr     bool // true = expect non-null error
+	}{
+		{
+			name:        "starting no latency no error",
+			status:      "starting",
+			server:      "wss://pg.example.com",
+			remotes:     []string{"R:8081:db.internal:5432"},
+			latency:     nil,
+			obsErr:      nil,
+			wantStatus:  "starting",
+			wantLatency: false,
+			wantErr:     false,
+		},
+		{
+			name:        "connected with latency",
+			status:      "connected",
+			server:      "wss://pg.example.com",
+			remotes:     []string{"R:8081:db.internal:5432"},
+			latency:     func() *string { s := "266ms"; return &s }(),
+			obsErr:      nil,
+			wantStatus:  "connected",
+			wantLatency: true,
+			wantErr:     false,
+		},
+		{
+			name:        "error with error string",
+			status:      "error",
+			server:      "wss://pg.example.com",
+			remotes:     []string{"R:8081:db.internal:5432"},
+			latency:     nil,
+			obsErr:      func() *string { s := "connection refused"; return &s }(),
+			wantStatus:  "error",
+			wantLatency: false,
+			wantErr:     true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Arrange: redirect stdout to a pipe
+			r, w, err := os.Pipe()
+			if err != nil {
+				t.Fatalf("os.Pipe() error: %v", err)
+			}
+			origStdout := os.Stdout
+			os.Stdout = w
+
+			// Act
+			emitObsEvent(testCorrelationID, tt.status, tt.server, tt.remotes, tt.latency, tt.obsErr)
+
+			// Restore stdout and read output
+			w.Close()
+			os.Stdout = origStdout
+			buf := make([]byte, 4096)
+			n, _ := r.Read(buf)
+			r.Close()
+			output := strings.TrimSpace(string(buf[:n]))
+
+			// Assert: valid JSON
+			var ev jsonEvent
+			if jsonErr := json.Unmarshal([]byte(output), &ev); jsonErr != nil {
+				t.Fatalf("output is not valid JSON: %v\noutput: %s", jsonErr, output)
+			}
+
+			if ev.Sourcetype != "outsystemscc:tunnel" {
+				t.Errorf("source_type = %q, want %q", ev.Sourcetype, "outsystemscc:tunnel")
+			}
+			if ev.Source != "outsystemscc" {
+				t.Errorf("source = %q, want %q", ev.Source, "outsystemscc")
+			}
+			if ev.Host == "" {
+				t.Errorf("host is empty")
+			}
+			if ev.CorrelationID != testCorrelationID {
+				t.Errorf("correlation_id = %q, want %q", ev.CorrelationID, testCorrelationID)
+			}
+			if ev.Event.Status != tt.wantStatus {
+				t.Errorf("status = %q, want %q", ev.Event.Status, tt.wantStatus)
+			}
+			if tt.wantLatency && ev.Event.Latency == nil {
+				t.Errorf("latency is nil, want non-nil")
+			}
+			if !tt.wantLatency && ev.Event.Latency != nil {
+				t.Errorf("latency = %q, want nil", *ev.Event.Latency)
+			}
+			if tt.latency != nil && ev.Event.Latency != nil && *ev.Event.Latency != *tt.latency {
+				t.Errorf("latency = %q, want %q", *ev.Event.Latency, *tt.latency)
+			}
+			if tt.wantErr && ev.Event.Error == nil {
+				t.Errorf("error is nil, want non-nil")
+			}
+			if !tt.wantErr && ev.Event.Error != nil {
+				t.Errorf("error = %q, want nil", *ev.Event.Error)
+			}
+		})
+	}
+}
 
 func Test_validateRemotes(t *testing.T) {
 
