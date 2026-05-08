@@ -106,8 +106,6 @@ var clientHelp = `
 
 	--pid Generate pid file in current working directory
 
-<<<<<<< Updated upstream
-=======
     --exlog, Emit a structured per-connection extra log to stderr in addition
     to the normal output. Two entries are emitted per connection, both tagged
     "[exlog]" followed by JSON, sharing the same conn_id:
@@ -121,7 +119,6 @@ var clientHelp = `
     Pipe through jq for analysis, e.g.:
         outsystemscc --exlog ... 2>&1 | grep '\[exlog\]' | sed 's/.*\[exlog\] //' | jq .
 
->>>>>>> Stashed changes
     -v, Enable verbose logging
 
     --help, This help text
@@ -145,6 +142,7 @@ func client(args []string) {
 	flags.Var(&headerFlags{config.Headers}, "header", "")
 	hostname := flags.String("hostname", "", "Deprecated, will be ignored")
 	pid := flags.Bool("pid", false, "")
+	exlog := flags.Bool("exlog", false, "")
 	verbose := flags.Bool("v", false, "")
 	flags.Usage = func() {
 		fmt.Print(clientHelp)
@@ -174,7 +172,24 @@ func client(args []string) {
 	serverURL := fetchURL(createHTTPClient(&config), args[0])
 
 	config.Server = fmt.Sprintf("%s%s", serverURL, queryParams)
-	config.Remotes = args[1:]
+
+	// If --exlog is set, interpose a local TCP proxy on each reverse remote
+	// so we can record per-connection metrics. The local-port the operator
+	// configured stays the same; only the host:port chisel dials gets
+	// rewritten to point at 127.0.0.1:<auto-allocated>.
+	remotes := args[1:]
+	if *exlog {
+		log.Printf("[exlog] mode enabled - emitting per-connection records as [exlog] <json>")
+		rewritten, proxies, err := startExlogProxies(remotes)
+		if err != nil {
+			log.Fatal(err)
+		}
+		// Tear down listeners on shutdown. cos.InterruptContext cancels on
+		// SIGINT/SIGTERM; once chisel.Wait returns we close the proxies.
+		defer stopExlogProxies(proxies)
+		remotes = rewritten
+	}
+	config.Remotes = remotes
 
 	//default auth
 	if config.Auth == "" {
