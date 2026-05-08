@@ -228,7 +228,8 @@ If your organization uses a centralized log management product, see its document
         --pid Generate pid file in current working directory
 
         -v, Enable verbose logging
-
+        
+        --exlog, CLI flag that emits a structured, per-connection JSON log line for every connection forwarded through the tunnel. Each entry contains the route rule, destination, success flag, latency, duration, and bytes transferred in each direction. This answers the operational question: "Did we receive traffic for R:<port>:<host>:<port>, and was the forward to the target successful?"
         --help, This help text
 
     Signals:
