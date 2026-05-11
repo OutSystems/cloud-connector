@@ -58,7 +58,7 @@ Download the latest release from the [releases page](https://github.com/OutSyste
 
 To install, unzip/untar the package and then copy the binary to the desired location. For example:
 
-    tar -zxvf outsystemscc_1.0.0_linux_amd64.tar.gz
+    tar -zxvf outsystemscc_2.0.8_linux_amd64.tar.gz
     mv outsystemscc $HOME/.local/bin
     outsystemscc --help
 
