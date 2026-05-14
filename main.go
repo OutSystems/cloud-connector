@@ -207,7 +207,7 @@ func fetchURL(client *resty.Client, requestLocation string) string {
 		requestLocation = "http://" + requestLocation
 	}
 
-	resp, err := client.SetDoNotParseResponse(true).R().Get(requestLocation)
+	resp, err := client.R().Get(requestLocation)
 	if err != nil {
 		if resp != nil && resp.StatusCode() == http.StatusFound {
 			redirectURL := resp.Header().Get("Location")
