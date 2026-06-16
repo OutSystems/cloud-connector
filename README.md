@@ -17,6 +17,7 @@ OutSystems Cloud Connector
     * [Firewall setup](#firewall-setup)
 1. [Usage](#usage)
     * [Logging](#logging)
+    * [Observability](#observability)
 1. [Detailed options](#detailed-options)
 1. [License](#license)
 
@@ -178,6 +179,60 @@ You can redirect this output to a file for retention purposes. For example:
 
 If your organization uses a centralized log management product, see its documentation about how to redirect the log output.
 
+### <a name="observability"></a> Observability (`-o`)
+
+When you pass **`-o`** on the command line, `outsystemscc` turns on observability for this run: it prints **one JSON object per line** to stdout at tunnel lifecycle points. Use this mode when you want machine‑parseable events (for example shipping lines to Splunk, Elastic, or another log platform) alongside or instead of reading the human‑readable log lines above.
+
+Each event includes a **`correlation_id`** that stays the same for all events emitted during a single process run, so you can tie lifecycle updates (see **`status`** below) to the same operation.
+
+Top-level fields on every line:
+
+| Field | Meaning |
+| --- | --- |
+| `correlation_id` | UUID for this connector run |
+| `time` | Unix time in nanoseconds |
+| `host` | Hostname of the machine running `outsystemscc` |
+| `source` | Always `outsystemscc` |
+| `source_type` | Always `outsystemscc:tunnel` |
+| `event` | Nested object with tunnel details (see below) |
+
+The nested **`event`** object contains:
+
+| Field | Meaning |
+| --- | --- |
+| `version` | `outsystemscc` build version |
+| `status` | Lifecycle state: `starting`, `connected`, `disconnected`, or `error` |
+| `server` | Resolved Private Gateway server URL used for the tunnel |
+| `remotes` | Remote specs as passed on the command line (e.g. `R:8081:10.0.0.1:8393`) |
+| `latency` | Round-trip time when connected; `null` if not applicable |
+| `error` | Error message string on failure; `null` on success |
+
+Example with observability enabled (token and URL are illustrative):
+
+    outsystemscc \
+      -o \
+      --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
+      https://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
+      R:8081:10.0.0.1:8393
+
+Observability lines go to **stdout**; timestamped messages from the default logger go to **stderr**. To keep only JSON lines in a file and still see status messages in the terminal, append stdout:
+
+    outsystemscc \
+      -o \
+      --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
+      https://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
+      R:8081:10.0.0.1:8393 \
+      >> tunnel_events.jsonl
+
+To send human-readable logs to a separate file as well:
+
+    outsystemscc \
+      -o \
+      --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
+      https://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
+      R:8081:10.0.0.1:8393 \
+      >> tunnel_events.jsonl 2>> outsystemscc.log
+
 ## 4. <a name="detailed-options"></a> Detailed options <small><sup>[Top ▲](#table-of-contents)</sup></small>
 
 
@@ -226,6 +281,10 @@ If your organization uses a centralized log management product, see its document
         Use the Token displayed on ODC Portal in using token as HeaderName.
         
         --pid Generate pid file in current working directory
+
+        -o, Emit JSON events to stdout at key tunnel lifecycle points (starting,
+	    connected, disconnected, error). Each event is a single-line JSON object
+	    including destination hosts, connection status, and latency.
 
         -v, Enable verbose logging
 
