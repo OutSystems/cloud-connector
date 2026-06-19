@@ -141,7 +141,7 @@ Use the **Token** and **Address** to form the `outsystemscc` command to run. For
       https://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
       R:8081:192.168.0.3:8393
 
-In this example, you create a tunnel to the endpoint `192.168.0.3:8393`, a REST API service running on IP address `192.168.0.3`. The endpoint is available to consume by apps running in the connected stage at `secure-gateway:8081`.
+In this example, you create a tunnel to the endpoint `192.168.0.3:8393`, a REST API service. The endpoint is available to consume by apps running in the connected stage at `secure-gateway:8081`. The `<remote-host>` field accepts a static IP address or a hostname/FQDN, for example `db.internal.example.com`.
 
 > :bulb: If you want to run `outsystemscc` on Azure Container Instances, [see the FAQs](FAQ.md#how-do-i-run-outsystemscc-on-azure-container-instances) for specific guidance.
 
@@ -154,7 +154,7 @@ You can create a tunnel to connect multiple endpoints to the same Private Gatewa
 
 In the above example you create a tunnel to connect two endpoints. One, as before, `192.168.0.3:8393`, a REST API service running on IP address `192.168.0.3`. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8081`. Second, `192.168.0.4:587`, an SMTP server running on `192.168.0.4`, another IP in the internal address range. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8082`.
 
-You can create a tunnel to any endpoint that's in the internal address range and so is network accessible over TCP or UDP from the system on which `outsystemscc` is run. If the connection is over UDP, add `/udp` to the end of the remote port.
+You can create a tunnel to any endpoint that's network accessible over TCP or UDP from the system on which `outsystemscc` is run, whether identified by IP address or hostname/FQDN. If the connection is over UDP, add `/udp` to the end of the remote port.
 
 To learn more about using connected endpoints in app development go to the [ODC documentation site](https://www.outsystems.com/goto/secure-gateways). Be sure to share the list of connected endpoint(s) of the form `secure-gateway:<port>` and any associated swagger specification file(s) with members of your team responsible developing apps in ODC Studio.
 
@@ -199,6 +199,9 @@ If your organization uses a centralized log management product, see its document
 
         R:8081:192.168.0.3:8393
         R:8082:192.168.0.4:587
+        R:8083:db.internal.example.com:5432
+
+        <remote-host> accepts a static IP address or a hostname/FQDN.
 
         See https://github.com/OutSystems/cloud-connector for examples in context.
         

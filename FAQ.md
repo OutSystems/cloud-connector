@@ -27,6 +27,8 @@ The key parameters used in the command:
 * `--image ghcr.io/outsystems/outsystemscc`: Specifies the Docker image to use for the container instance.
 * `--command-line '...'`: Specifies the command line to run in the container. This command starts the `outsystemscc` service with the specified header token, server URL, and remote connection details.
 
+The `<remote-host>` value in the remote connection (for example, `192.168.0.3` above) accepts a static IP address or a hostname/FQDN.
+
 Ensure to replace `[ResourceGroupName]`, `[ContainerName]`, and the values in the `--command-line` parameter with your actual values.
 
 #### Azure configuration page
