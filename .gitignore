@@ -7,3 +7,5 @@ rules/
 .markdownlint.json
 .vale.ini
 outsystemscc
+.claude/*
+!.claude/rules/
