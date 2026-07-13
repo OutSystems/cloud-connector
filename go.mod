@@ -3,7 +3,7 @@ module github.com/outsystems/cloud-connector
 require (
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/jarcoal/httpmock v1.4.1
-	github.com/jpillora/chisel v1.10.1
+	github.com/jpillora/chisel v1.11.8
 )
 
 require (
@@ -13,11 +13,11 @@ require (
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/jpillora/sizestr v1.0.0 // indirect
 	golang.org/x/crypto v0.53.0 // indirect
-	golang.org/x/net v0.55.0 // indirect
+	golang.org/x/net v0.56.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
 )
 
-replace github.com/jpillora/chisel => github.com/outsystems/chisel v1.11.5-os.4
+replace github.com/jpillora/chisel => github.com/outsystems/chisel v1.11.8-os.1
 
-go 1.26.4
+go 1.26.5
