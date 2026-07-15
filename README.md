@@ -42,7 +42,6 @@ _Minimum system requirement per `outsystemscc` instance: 2 GB RAM, 2x 1GHz+ CPU.
 
 To install, use either the binary or Docker option. Run the binary on Linux, or use the Docker image on any OS that supports Docker. Running `outsystemscc` as a Docker image offers several advantages if your system supports it:
 
-* You can always run the latest release. You don't need to reinstall each new release. **⚠️ Note: This is not recommended for production environments since it may result in automatic upgrades to versions with breaking changes without your knowledge or control.**
 * You can run `outsystemscc` on any Linux/Windows(within a WSL environment) system that supports Docker:
     * For example, if you are using Windows, you can run `outsystemscc` within Windows Subsystem for Linux (WSL), where you can pull and run the Docker image directly from the WSL environment.
 * Without additional configuration `outsystemscc` starts with the Docker daemon on system boot.
@@ -78,7 +77,7 @@ To enhance the resilience of `outsystemscc` consider running the Docker containe
 
 The `-d` flag runs the Docker container in detached mode, setting it to run in the background. The `--restart=on-failure` option ensures that the container will automatically restart up to `<n>` times if it exits with a non-zero status. For more information, see the [Docker run reference](https://docs.docker.com/engine/reference/run/).
 
-⚠️ **Production Recommendation**: Always pin to a specific version (e.g., `ghcr.io/outsystems/outsystemscc:2.0.11`) rather than using the `:latest` tag. Using `:latest` may result in automatic upgrades to new versions without your knowledge or control, which could introduce breaking changes. For production environments, pinning to a specific version ensures that upgrades are deliberate and controlled. Check the [releases page](https://github.com/OutSystems/cloud-connector/releases) regularly and upgrade consciously when needed.
+⚠️ **Production Recommendation**: Always pin to a specific version tag (e.g., `ghcr.io/outsystems/outsystemscc:2.0.11`) rather than using `:latest`. Using `:latest` may result in automatic upgrades without your knowledge or control. Pinning to a specific version ensures upgrades are deliberate and controlled. Check the [releases page](https://github.com/OutSystems/cloud-connector/releases) for available versions and upgrade consciously when needed.
 
 If you're running the container on a runtime where you need to specify the command line or override the entrypoint (for example on Azure Container Instances or AWS Fargate):
 
