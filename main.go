@@ -61,8 +61,20 @@ func (flag *headerFlags) Set(arg string) error {
 	return nil
 }
 
+// stringSliceFlag is a repeatable flag value (can be specified multiple times).
+type stringSliceFlag []string
+
+func (f *stringSliceFlag) String() string {
+	return strings.Join(*f, ", ")
+}
+
+func (f *stringSliceFlag) Set(v string) error {
+	*f = append(*f, v)
+	return nil
+}
+
 var clientHelp = `
-  Usage: outsystemscc [options] <server> <remote> [remote] [remote] ...
+  Usage: outsystemscc [options] <server> [remote] [remote] ...
 
   <server> is the URL to the server. Use the Address displayed on ODC Portal.
 
@@ -80,7 +92,7 @@ var clientHelp = `
 	  R:8082:192.168.0.4:587
 
     See https://github.com/OutSystems/cloud-connector for  examples in context.
-    
+
   Options:
 
     --keepalive, An optional keepalive interval. Since the underlying
@@ -101,7 +113,7 @@ var clientHelp = `
     For example, http://admin:password@my-server.com:8081
             or: socks://admin:password@my-server.com:1080
 
-    --header, Set a custom header in the form "HeaderName: HeaderContent". 
+    --header, Set a custom header in the form "HeaderName: HeaderContent".
 	Use the Token displayed on ODC Portal in using token as HeaderName.
 
 	--pid Generate pid file in current working directory
@@ -109,6 +121,29 @@ var clientHelp = `
     -v, Enable verbose logging
 
     --help, This help text
+
+  Embedded HTTP CONNECT proxy (--http-proxy):
+
+    --http-proxy, Enable the embedded HTTP CONNECT proxy. Exposes a single
+    reverse remote on the gateway so ODC apps can reach private TLS backends
+    by their real hostnames. Requires --http-proxy-allow or
+    --http-proxy-allow-all.
+
+    --http-proxy-gateway-port, Port exposed on secure-gateway for the proxy
+    (default 8080). Set HTTPS_PROXY=http://secure-gateway:<port> in ODC apps.
+
+    --http-proxy-listen-port, Localhost port the embedded proxy binds on the
+    private side (default 18080).
+
+    --http-proxy-allow <host:port>, Exact allow-listed CONNECT target.
+    Repeatable. Required unless --http-proxy-allow-all is set.
+
+    --http-proxy-allow-all, Permit any reachable target (full private-network
+    egress). WARNING: confused-deputy/SSRF risk. Mutually exclusive with
+    --http-proxy-allow.
+
+    --http-proxy-dial-timeout, Timeout for dialing the upstream target
+    (default 10s).
 
   Signals:
     The outsystemscc process is listening for:
@@ -130,6 +165,18 @@ func client(args []string) {
 	hostname := flags.String("hostname", "", "Deprecated, will be ignored")
 	pid := flags.Bool("pid", false, "")
 	verbose := flags.Bool("v", false, "")
+
+	httpProxy := flags.Bool("http-proxy", false, "")
+	httpProxyGatewayPort := flags.Int("http-proxy-gateway-port", 8080, "")
+	httpProxyListenPort := flags.Int("http-proxy-listen-port", 18080, "")
+	httpProxyMaxConns := flags.Int("http-proxy-max-conns", 1024, "")
+	httpProxyHeaderTimeout := flags.Duration("http-proxy-header-timeout", 10*time.Second, "")
+	httpProxyIdleTimeout := flags.Duration("http-proxy-idle-timeout", 15*time.Minute, "")
+	var httpProxyAllow stringSliceFlag
+	flags.Var(&httpProxyAllow, "http-proxy-allow", "")
+	httpProxyAllowAll := flags.Bool("http-proxy-allow-all", false, "")
+	httpProxyDialTimeout := flags.Duration("http-proxy-dial-timeout", 10*time.Second, "")
+
 	flags.Usage = func() {
 		fmt.Print(clientHelp)
 		os.Exit(0)
@@ -141,35 +188,48 @@ func client(args []string) {
 		config.Headers.Set("User-Agent", fmt.Sprintf("CloudConnector/%s", version))
 	}
 
-	//pull out options, put back remaining args
 	args = flags.Args()
-	if len(args) < 2 {
-		log.Fatalf("A server and least one remote is required")
+	if len(args) < 1 {
+		log.Fatalf("A server is required")
+	}
+	if !*httpProxy && len(args) < 2 {
+		log.Fatalf("A server and at least one remote is required")
 	}
 
-	localPorts, err := validateRemotes(args[1:])
+	remotes := make([]string, len(args[1:]))
+	copy(remotes, args[1:])
+
+	if *httpProxy {
+		if err := validateProxyFlags(*httpProxyGatewayPort, *httpProxyListenPort, *httpProxyMaxConns, *httpProxyHeaderTimeout, *httpProxyIdleTimeout, httpProxyAllow, *httpProxyAllowAll); err != nil {
+			log.Fatal(err)
+		}
+		if *httpProxyAllowAll {
+			log.Printf("[WARN] --http-proxy-allow-all is set: unrestricted private-network egress is enabled; this is a confused-deputy/SSRF risk")
+		}
+		synthesized := fmt.Sprintf("R:%d:127.0.0.1:%d", *httpProxyGatewayPort, *httpProxyListenPort)
+		remotes = append([]string{synthesized}, remotes...)
+	}
+
+	localPorts, err := validateRemotes(remotes)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	queryParams := generateQueryParameters(localPorts)
 
-	//get server URL
 	serverURL := fetchURL(createHTTPClient(&config), args[0])
 
 	config.Server = fmt.Sprintf("%s%s", serverURL, queryParams)
-	config.Remotes = args[1:]
+	config.Remotes = remotes
 
-	//default auth
 	if config.Auth == "" {
 		config.Auth = os.Getenv("AUTH")
 	}
-	//move hostname onto headers
 	if *hostname != "" {
 		log.Printf("[WARN] The --hostname flag will be removed in a future release. Please consider removing it to avoid breaking changes.\n" +
 			"Please specify the correct server URL directly instead.\n")
 	}
-	//ready
+
 	c, err := chclient.NewClient(&config)
 	if err != nil {
 		log.Fatal(err)
@@ -180,6 +240,23 @@ func client(args []string) {
 	}
 	go cos.GoStats()
 	ctx := cos.InterruptContext()
+
+	if *httpProxy {
+		proxyCfg := proxyConfig{
+			listenAddr:    fmt.Sprintf("127.0.0.1:%d", *httpProxyListenPort),
+			allowlist:     []string(httpProxyAllow),
+			allowAll:      *httpProxyAllowAll,
+			maxConns:      *httpProxyMaxConns,
+			headerTimeout: *httpProxyHeaderTimeout,
+			dialTimeout:   *httpProxyDialTimeout,
+			idleTimeout:   *httpProxyIdleTimeout,
+			verbose:       *verbose,
+		}
+		if _, err := runProxy(ctx, proxyCfg); err != nil {
+			log.Fatalf("http-proxy: failed to start: %v", err)
+		}
+	}
+
 	if err := c.Start(ctx); err != nil {
 		log.Fatal(err)
 	}

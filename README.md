@@ -161,6 +161,29 @@ To learn more about using connected endpoints in app development go to the [ODC 
 
 You can also use the connected endpoint(s) in custom code development using the External Libraries feature, see the [External Libraries SDK documentation](https://www.outsystems.com/goto/external-logic-private-gateway) for guidance.
 
+#### Embedded HTTP CONNECT Proxy
+
+In addition to traditional port forwarding, `outsystemscc` can expose an embedded HTTP CONNECT proxy. This allows HTTP clients to establish tunneled connections to private backends using the CONNECT method, preserving real hostnames and enabling end-to-end TLS encryption.
+
+To enable the proxy, use the `--http-proxy` flag:
+
+    outsystemscc \
+      --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
+      --http-proxy \
+      --http-proxy-allow api.internal.example.com:443 \
+      --http-proxy-allow db.internal.example.com:5432 \
+      https://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7
+
+The proxy will be available to clients at `secure-gateway:8080` (configurable).
+
+**Key Features:**
+- **Allowlist enforcement**: Only specified backends can be reached (default mode)
+- **TLS passthrough**: End-to-end encryption preserved, no traffic inspection
+- **Protocol validation**: Only HTTP CONNECT method accepted
+- **Port-aware**: Exact port matching in allowlist (not port ranges)
+
+For more details on proxy flags and configuration, see [Detailed options](#detailed-options) below.
+
 ### <a name="logging"></a> Logging
 
 By default, `outsystemscc` logs timestamped information about the connection status and 
@@ -234,6 +257,34 @@ If your organization uses a centralized log management product, see its document
         -v, Enable verbose logging
 
         --help, This help text
+
+    Embedded HTTP CONNECT Proxy Options:
+
+        --http-proxy, Enable the embedded HTTP CONNECT proxy. Exposes a
+        reverse remote on the gateway so clients can reach private
+        backends by their real hostnames using HTTP CONNECT tunneling.
+        Requires --http-proxy-allow or --http-proxy-allow-all.
+
+        --http-proxy-gateway-port, Port exposed on the secure-gateway for
+        the proxy (default 8080). Clients connect via secure-gateway:<port>.
+
+        --http-proxy-listen-port, Localhost port the embedded proxy binds
+        on the private side (default 18080). Should differ from
+        --http-proxy-gateway-port.
+
+        --http-proxy-allow, Allow-listed target for CONNECT requests in
+        format "host:port". Repeatable flag, can be specified multiple times.
+        Required unless --http-proxy-allow-all is set.
+        Example: --http-proxy-allow api.internal:443 --http-proxy-allow db.internal:5432
+
+        --http-proxy-allow-all, Permit unrestricted private-network egress.
+        WARNING: This enables confused-deputy/SSRF risks. Mutually exclusive
+        with --http-proxy-allow. Use only in secure, network-segmented
+        deployments.
+
+        --http-proxy-dial-timeout, Timeout for dialing upstream targets
+        (default 10s). Prevents hanging connections. Specify with units,
+        for example '5s' or '30s'.
 
     Signals:
         The outsystemscc process is listening for:
