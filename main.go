@@ -169,6 +169,9 @@ func client(args []string) {
 	httpProxy := flags.Bool("http-proxy", false, "")
 	httpProxyGatewayPort := flags.Int("http-proxy-gateway-port", 8080, "")
 	httpProxyListenPort := flags.Int("http-proxy-listen-port", 18080, "")
+	httpProxyMaxConns := flags.Int("http-proxy-max-conns", 1024, "")
+	httpProxyHeaderTimeout := flags.Duration("http-proxy-header-timeout", 10*time.Second, "")
+	httpProxyIdleTimeout := flags.Duration("http-proxy-idle-timeout", 15*time.Minute, "")
 	var httpProxyAllow stringSliceFlag
 	flags.Var(&httpProxyAllow, "http-proxy-allow", "")
 	httpProxyAllowAll := flags.Bool("http-proxy-allow-all", false, "")
@@ -197,7 +200,7 @@ func client(args []string) {
 	copy(remotes, args[1:])
 
 	if *httpProxy {
-		if err := validateProxyFlags(*httpProxyGatewayPort, *httpProxyListenPort, httpProxyAllow, *httpProxyAllowAll); err != nil {
+		if err := validateProxyFlags(*httpProxyGatewayPort, *httpProxyListenPort, *httpProxyMaxConns, *httpProxyHeaderTimeout, *httpProxyIdleTimeout, httpProxyAllow, *httpProxyAllowAll); err != nil {
 			log.Fatal(err)
 		}
 		if *httpProxyAllowAll {
@@ -240,11 +243,14 @@ func client(args []string) {
 
 	if *httpProxy {
 		proxyCfg := proxyConfig{
-			listenAddr:  fmt.Sprintf("127.0.0.1:%d", *httpProxyListenPort),
-			allowlist:   []string(httpProxyAllow),
-			allowAll:    *httpProxyAllowAll,
-			dialTimeout: *httpProxyDialTimeout,
-			verbose:     *verbose,
+			listenAddr:    fmt.Sprintf("127.0.0.1:%d", *httpProxyListenPort),
+			allowlist:     []string(httpProxyAllow),
+			allowAll:      *httpProxyAllowAll,
+			maxConns:      *httpProxyMaxConns,
+			headerTimeout: *httpProxyHeaderTimeout,
+			dialTimeout:   *httpProxyDialTimeout,
+			idleTimeout:   *httpProxyIdleTimeout,
+			verbose:       *verbose,
 		}
 		if _, err := runProxy(ctx, proxyCfg); err != nil {
 			log.Fatalf("http-proxy: failed to start: %v", err)

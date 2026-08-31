@@ -245,7 +245,7 @@ func TestValidateProxyFlags(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := validateProxyFlags(tt.gatewayPort, tt.listenPort, tt.allow, tt.allowAll)
+			err := validateProxyFlags(tt.gatewayPort, tt.listenPort, 1024, 10*time.Second, 15*time.Minute, tt.allow, tt.allowAll)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("validateProxyFlags() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -296,9 +296,12 @@ func TestProxy_Integration_CONNECT(t *testing.T) {
 	defer cancel()
 
 	ln, err := runProxy(ctx, proxyConfig{
-		listenAddr:  "127.0.0.1:0",
-		allowlist:   []string{backendAddr},
-		dialTimeout: 5 * time.Second,
+		listenAddr:    "127.0.0.1:0",
+		allowlist:     []string{backendAddr},
+		maxConns:      10000,
+		headerTimeout: 10 * time.Second,
+		dialTimeout:   5 * time.Second,
+		idleTimeout:   1 * time.Minute,
 	})
 	if err != nil {
 		t.Fatalf("runProxy() error: %v", err)
@@ -336,9 +339,12 @@ func TestProxy_Integration_DeniedTarget(t *testing.T) {
 	defer cancel()
 
 	ln, err := runProxy(ctx, proxyConfig{
-		listenAddr:  "127.0.0.1:0",
-		allowlist:   []string{"allowed.internal:443"},
-		dialTimeout: 5 * time.Second,
+		listenAddr:    "127.0.0.1:0",
+		allowlist:     []string{"allowed.internal:443"},
+		maxConns:      100,
+		headerTimeout: 10 * time.Second,
+		dialTimeout:   5 * time.Second,
+		idleTimeout:   1 * time.Minute,
 	})
 	if err != nil {
 		t.Fatalf("runProxy() error: %v", err)
@@ -361,9 +367,12 @@ func TestProxy_Integration_NonCONNECTMethod(t *testing.T) {
 	defer cancel()
 
 	ln, err := runProxy(ctx, proxyConfig{
-		listenAddr:  "127.0.0.1:0",
-		allowlist:   []string{"api.corp:443"},
-		dialTimeout: 5 * time.Second,
+		listenAddr:    "127.0.0.1:0",
+		allowlist:     []string{"api.corp:443"},
+		maxConns:      100,
+		headerTimeout: 10 * time.Second,
+		dialTimeout:   5 * time.Second,
+		idleTimeout:   1 * time.Minute,
 	})
 	if err != nil {
 		t.Fatalf("runProxy() error: %v", err)
@@ -386,9 +395,12 @@ func TestProxy_Integration_MalformedRequest(t *testing.T) {
 	defer cancel()
 
 	ln, err := runProxy(ctx, proxyConfig{
-		listenAddr:  "127.0.0.1:0",
-		allowlist:   []string{"api.corp:443"},
-		dialTimeout: 5 * time.Second,
+		listenAddr:    "127.0.0.1:0",
+		allowlist:     []string{"api.corp:443"},
+		maxConns:      100,
+		headerTimeout: 10 * time.Second,
+		dialTimeout:   5 * time.Second,
+		idleTimeout:   1 * time.Minute,
 	})
 	if err != nil {
 		t.Fatalf("runProxy() error: %v", err)
@@ -413,9 +425,12 @@ func TestProxy_Integration_UnreachableTarget(t *testing.T) {
 	unreachable := "127.0.0.1:1" // port 1 should not be listening
 
 	ln, err := runProxy(ctx, proxyConfig{
-		listenAddr:  "127.0.0.1:0",
-		allowlist:   []string{unreachable},
-		dialTimeout: 500 * time.Millisecond,
+		listenAddr:    "127.0.0.1:0",
+		allowlist:     []string{unreachable},
+		maxConns:      100,
+		headerTimeout: 10 * time.Second,
+		dialTimeout:   500 * time.Millisecond,
+		idleTimeout:   1 * time.Minute,
 	})
 	if err != nil {
 		t.Fatalf("runProxy() error: %v", err)
@@ -463,9 +478,12 @@ func TestProxy_Integration_TLSPassthrough(t *testing.T) {
 	defer cancel()
 
 	ln, err := runProxy(ctx, proxyConfig{
-		listenAddr:  "127.0.0.1:0",
-		allowlist:   []string{backendTarget},
-		dialTimeout: 5 * time.Second,
+		listenAddr:    "127.0.0.1:0",
+		allowlist:     []string{backendTarget},
+		maxConns:      100,
+		headerTimeout: 10 * time.Second,
+		dialTimeout:   5 * time.Second,
+		idleTimeout:   1 * time.Minute,
 	})
 	if err != nil {
 		t.Fatalf("runProxy() error: %v", err)
