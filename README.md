@@ -89,7 +89,7 @@ The OutSystems Cloud Connector establishes an outbound secure WebSocket (WSS) co
 
 No inbound firewall rules are required. The connector only needs the ability to initiate outbound connections.
 
-If the network requires outbound traffic to route through a proxy, you specify that using the `--proxy` option.
+If the network requires outbound traffic to route through a proxy, you specify that using the `--proxy` option. `--proxy` applies only to this connection, from Cloud Connector to the Private Gateway. The connection from Cloud Connector to each `<remote-host>` is dialed directly by the host's local network stack and never passes through `--proxy`.
 
 #### Layer 7 (Application-Level) Firewalls
 
@@ -156,6 +156,16 @@ You can create a tunnel to connect multiple endpoints to the same Private Gatewa
 In the above example you create a tunnel to connect two endpoints. One, as before, `192.168.0.3:8393`, a REST API service running on IP address `192.168.0.3`. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8081`. Second, `192.168.0.4:587`, an SMTP server running on `192.168.0.4`, another IP in the internal address range. The endpoint is available for use by apps running in the connected stage at `secure-gateway:8082`.
 
 You can create a tunnel to any endpoint that's network accessible over TCP or UDP from the system on which `outsystemscc` is run, whether identified by IP address or hostname/FQDN. If the connection is over UDP, add `/udp` to the end of the remote port.
+
+#### Raw passthrough, hostname routing, and relay servers
+
+`outsystemscc` creates a raw TCP/UDP tunnel to `<remote-host>`. It doesn't parse or rewrite any part of the traffic it carries, so it never touches an HTTP `Host` header or a TLS Server Name Indication (SNI). Whatever hostname the connecting app dials arrives at `<remote-host>` unchanged.
+
+`<remote-host>` doesn't need to be the final destination. Since `outsystemscc` only opens a plain TCP connection to it, you can point `<remote-host>` at a relay that then forwards to the real destination, for example to reach a service that isn't directly reachable from the private network, or that expects a different hostname or certificate than the connecting app presents.
+
+This matters for TLS in particular. `outsystemscc` only trusts certificates signed by a public/verified Certificate Authority (CA) for the endpoints it connects to, so a destination presenting an internal or self-signed certificate can't be reached directly. Terminate TLS at the relay instead, using a certificate signed by a public CA, and have the relay talk to the real destination however that destination expects, over internal TLS with its own certificate, or over plain TCP if that segment is trusted.
+
+If the destination routes requests based on the `Host` header, rewrite the header at the connecting application, since `outsystemscc` passes it through unchanged. If the destination validates the TLS SNI instead, rewriting the `Host` header doesn't help, since the SNI is set during the TLS handshake before any HTTP-layer code runs. Terminating TLS at a relay is the way to present the SNI the destination expects.
 
 To learn more about using connected endpoints in app development go to the [ODC documentation site](https://www.outsystems.com/goto/secure-gateways). Be sure to share the list of connected endpoint(s) of the form `secure-gateway:<port>` and any associated swagger specification file(s) with members of your team responsible developing apps in ODC Studio.
 
@@ -244,8 +254,10 @@ If your organization uses a centralized log management product, see its document
         disconnection. Defaults to 5 minutes.
 
         --proxy, An optional HTTP CONNECT or SOCKS5 proxy which will be
-        used to reach the server. Authentication can be specified
-        inside the URL.
+        used to reach <server> (the Private Gateway). This proxy applies
+        only to that connection. The connection to each <remote-host> is
+        always dialed directly and never passes through --proxy.
+        Authentication can be specified inside the URL.
         For example, http://admin:password@my-server.com:8081
                 or: socks://admin:password@my-server.com:1080
 
