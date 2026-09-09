@@ -28,6 +28,8 @@ You run `outsystemscc` on a system in your private network—an on-premise netwo
 
 `outsystemscc` creates a fast TCP/UDP tunnel, with transport over HTTP via WebSockets, secured via SSH using ECDSA with SHA256 keys. The connection is established to either the built-in domain for the stage (for example `<organization>.outsystems.app`) or a custom domain configured for the stage (for example `example.com`). In both cases, the connection is over TLS and always encrypted with a valid X.509 certificate.
 
+Past that tunnel, `outsystemscc` forwards traffic to each `<remote-host>` as a raw TCP/UDP passthrough, carrying HTTP and TLS content through exactly as the connecting client sends it. An HTTP `Host` header or a TLS Server Name Indication (SNI) reaches `<remote-host>` unchanged. Because `outsystemscc` treats `<remote-host>` as an opaque TCP/UDP endpoint, `<remote-host>` can itself be a relay rather than the final service: point it at an intermediary that terminates TLS or presents a different hostname when the real destination requires that.
+
 The following diagram is an example of a ODC customer setup for a Private Gateway active on two stages.
 
 ![Private gateways diagram](images/private-gateways-diag.png "Private gateways diagram")
@@ -89,7 +91,7 @@ The OutSystems Cloud Connector establishes an outbound secure WebSocket (WSS) co
 
 No inbound firewall rules are required. The connector only needs the ability to initiate outbound connections.
 
-If the network requires outbound traffic to route through a proxy, you specify that using the `--proxy` option.
+If the network requires outbound traffic to route through a proxy, you specify that using the `--proxy` option. `--proxy` applies only to this connection, from Cloud Connector to the Private Gateway. `outsystemscc` dials the connection to each `<remote-host>` directly through the host's local network stack, bypassing `--proxy`.
 
 #### Layer 7 (Application-Level) Firewalls
 
@@ -243,9 +245,10 @@ If your organization uses a centralized log management product, see its document
         --max-retry-interval, Maximum wait time before retrying after a
         disconnection. Defaults to 5 minutes.
 
-        --proxy, An optional HTTP CONNECT or SOCKS5 proxy which will be
-        used to reach the server. Authentication can be specified
-        inside the URL.
+        --proxy, An optional HTTP CONNECT or SOCKS5 proxy used to reach
+        <server> (the Private Gateway). Applies only to that connection:
+        outsystemscc dials the connection to each <remote-host> directly,
+        bypassing --proxy. Authentication can be specified inside the URL.
         For example, http://admin:password@my-server.com:8081
                 or: socks://admin:password@my-server.com:1080
 
