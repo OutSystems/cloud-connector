@@ -16,6 +16,7 @@ OutSystems Cloud Connector
     * [Docker](#docker)
     * [Firewall setup](#firewall-setup)
 1. [Usage](#usage)
+    * [Passing the Token](#passing-the-token)
     * [Logging](#logging)
 1. [Detailed options](#detailed-options)
 1. [License](#license)
@@ -146,6 +147,8 @@ Use the **Token** and **Address** to form the `outsystemscc` command to run. For
 
 In this example, you create a tunnel to the endpoint `192.168.0.3:8393`, a REST API service. The endpoint is available to consume by apps running in the connected stage at `secure-gateway:8081`. The `<remote-host>` field accepts a static IP address or a hostname/FQDN, for example `db.internal.example.com`.
 
+> :bulb: There are additional ways to pass the Token — see [Passing the Token](#passing-the-token) below.
+
 > :bulb: If you want to run `outsystemscc` on Azure Container Instances, [see the FAQs](FAQ.md#how-do-i-run-outsystemscc-on-azure-container-instances) for specific guidance.
 
 You can create a tunnel to connect multiple endpoints to the same Private Gateway. To do this, run multiple instances of `outsystemscc` or pass in multiple remotes (`R:<local-port>:<remote-host>:<remote-port>`) to the same instance. In the latter case, for example:
@@ -162,6 +165,46 @@ You can create a tunnel to any endpoint that's network accessible over TCP or UD
 To learn more about using connected endpoints in app development go to the [ODC documentation site](https://www.outsystems.com/goto/secure-gateways). Be sure to share the list of connected endpoint(s) of the form `secure-gateway:<port>` and any associated swagger specification file(s) with members of your team responsible developing apps in ODC Studio.
 
 You can also use the connected endpoint(s) in custom code development using the External Libraries feature, see the [External Libraries SDK documentation](https://www.outsystems.com/goto/external-logic-private-gateway) for guidance.
+
+#### <a name="passing-the-token"></a> Passing the Token
+
+Besides `--header`, `outsystemscc` also accepts the Token through a token file or an environment variable.
+
+**Token file — `--token-file <path>`**
+
+Save the Token to a file and reference it:
+
+    echo -n "N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" > token.txt
+    chmod 600 token.txt
+
+    outsystemscc \
+      --token-file token.txt \
+      https://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
+      R:8081:192.168.0.3:8393
+
+We recommend restricting the file's permissions to `600` so only its owner can read it. If the file is more permissive than that, `outsystemscc` prints a one-time warning at startup but still connects normally.
+
+> :information_source: When running `outsystemscc` via Docker, the container runs as a fixed non-root user. If the token file is owned only by your host account, the container may not be able to read it even with the recommended `600` permissions. To avoid this, either:
+> - make the file's owner match the container's user, or
+> - run the container with `--user <uid>:<gid>` set to the file's owner, for example:
+>
+>       docker run --user "$(id -u):$(id -g)" \
+>         -v "$(pwd)/token.txt:/etc/secrets/token:ro" \
+>         ghcr.io/outsystems/outsystemscc:2.0.11 \
+>         --token-file /etc/secrets/token \
+>         https://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
+>         R:8081:192.168.0.3:8393
+>
+> If you're running on Kubernetes, the equivalent is aligning the mounted Secret's ownership with the container's user (for example, via `securityContext.fsGroup`).
+
+**Environment variable — `OUTSYSTEMSCC_TOKEN`**
+
+    export OUTSYSTEMSCC_TOKEN="N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy"
+    outsystemscc \
+      https://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
+      R:8081:192.168.0.3:8393
+
+If more than one of `--token-file`, `OUTSYSTEMSCC_TOKEN`, and `--header` are provided at the same time, `--token-file` takes priority, followed by `OUTSYSTEMSCC_TOKEN`, then `--header`.
 
 #### Embedded HTTP CONNECT Proxy
 
@@ -254,7 +297,13 @@ If your organization uses a centralized log management product, see its document
 
         --header, Set a custom header in the form "HeaderName: HeaderContent". 
         Use the Token displayed on ODC Portal in using token as HeaderName.
-        
+
+        --token-file <path>, Path to a file whose contents are used as the
+        Token. See Passing the Token in the Usage section above.
+
+        (env) OUTSYSTEMSCC_TOKEN, Set the Token via environment variable
+        instead of a flag. See Passing the Token in the Usage section above.
+
         --pid Generate pid file in current working directory
 
         -v, Enable verbose logging

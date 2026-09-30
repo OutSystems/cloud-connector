@@ -24,6 +24,14 @@ var (
 	version = "dev" // Set by goreleaser
 )
 
+const (
+	// tokenHeaderName is the HTTP header used to carry the ODC Portal auth token.
+	tokenHeaderName = "token"
+	// tokenEnvVar is the environment variable read as an alternative to --token-file
+	// and --header for supplying the auth token.
+	tokenEnvVar = "OUTSYSTEMSCC_TOKEN"
+)
+
 func main() {
 	client(os.Args[1:])
 }
@@ -58,6 +66,46 @@ func (flag *headerFlags) Set(arg string) error {
 	key := arg[0:index]
 	value := arg[index+1:]
 	flag.Header.Set(key, strings.TrimSpace(value))
+	return nil
+}
+
+// readTokenFile reads and trims the auth token from a file, warning if the
+// file's permissions allow group/other access.
+func readTokenFile(path string) (string, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return "", fmt.Errorf("failed to stat token file %q: %w", path, err)
+	}
+	if info.Mode().Perm()&0077 != 0 {
+		log.Printf("[WARN] Token file %q is readable by group/other (permissions %04o). "+
+			"Recommended: chmod 600 %s", path, info.Mode().Perm(), path)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", fmt.Errorf("failed to read token file %q: %w", path, err)
+	}
+	return strings.TrimSpace(string(data)), nil
+}
+
+// applyToken resolves the auth token from --token-file, the OUTSYSTEMSCC_TOKEN
+// environment variable, or a legacy --header "token: ..." flag, in that order
+// of precedence, and sets it on headers. The legacy path will be deprecated
+// in a future release in favor of OUTSYSTEMSCC_TOKEN or --token-file.
+func applyToken(tokenFile string, headers http.Header) error {
+	switch {
+	case tokenFile != "":
+		token, err := readTokenFile(tokenFile)
+		if err != nil {
+			return err
+		}
+		headers.Set(tokenHeaderName, token)
+	case os.Getenv(tokenEnvVar) != "":
+		headers.Set(tokenHeaderName, os.Getenv(tokenEnvVar))
+	case headers.Get(tokenHeaderName) != "":
+		log.Printf("[NOTICE] Setting the %q header via --header will be deprecated in a future "+
+			"release. Please use --token-file (recommended) or the %s environment variable "+
+			"instead.", tokenHeaderName, tokenEnvVar)
+	}
 	return nil
 }
 
@@ -115,6 +163,15 @@ var clientHelp = `
 
     --header, Set a custom header in the form "HeaderName: HeaderContent".
 	Use the Token displayed on ODC Portal in using token as HeaderName.
+	Setting the "token" header this way will be deprecated in a future
+	release. Recommended: use OUTSYSTEMSCC_TOKEN or --token-file below.
+
+    --token-file <path>, Path to a file whose (trimmed) contents are used as
+    the "token" header value. Recommended: restrict permissions to 0600.
+    Takes precedence over OUTSYSTEMSCC_TOKEN and --header.
+
+    (env) OUTSYSTEMSCC_TOKEN, Set the "token" header value via environment
+    variable instead of a CLI flag. Takes precedence over --header.
 
 	--pid Generate pid file in current working directory
 
@@ -162,6 +219,7 @@ func client(args []string) {
 	flags.DurationVar(&config.MaxRetryInterval, "max-retry-interval", 0, "")
 	flags.StringVar(&config.Proxy, "proxy", "", "")
 	flags.Var(&headerFlags{config.Headers}, "header", "")
+	tokenFile := flags.String("token-file", "", "")
 	hostname := flags.String("hostname", "", "Deprecated, will be ignored")
 	pid := flags.Bool("pid", false, "")
 	verbose := flags.Bool("v", false, "")
@@ -182,6 +240,10 @@ func client(args []string) {
 		os.Exit(0)
 	}
 	flags.Parse(args)
+
+	if err := applyToken(*tokenFile, config.Headers); err != nil {
+		log.Fatal(err)
+	}
 
 	// Set custom User-Agent
 	if config.Headers.Get("User-Agent") == "" {
