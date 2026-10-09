@@ -57,6 +57,7 @@ cloud-connector/
 | `validateRemotes` | Parses and validates remote definitions (`R:local:host:remote`); rejects duplicate local ports |
 | `generateQueryParameters` | Builds query string with a random session ID and declared local ports |
 | `createHTTPClient` | Creates a `resty` HTTP client, optionally configured with a proxy |
+| `newChiselClient` | Builds the chisel client and applies the log-level policy: connection status (info) always on, chisel debug output behind `-v` |
 | `generatePidFile` | Writes the process PID to `outsystemscc.pid` for process management |
 | `headerFlags` | Custom `flag.Value` implementation for `--header` key:value pairs |
 

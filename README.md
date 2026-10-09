@@ -231,19 +231,54 @@ For more details on proxy flags and configuration, see [Detailed options](#detai
 
 ### <a name="logging"></a> Logging
 
-By default, `outsystemscc` logs timestamped information about the connection status and 
-latency to stdout. For example:
+By default, `outsystemscc` logs timestamped information about the connection status and
+latency to stderr. No extra flags are required. For example:
 
     2022/11/10 12:14:42 client: Connecting to ws://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7:80
     2022/11/10 12:14:42 client: Connected (Latency 733.439µs)
 
-You can redirect this output to a file for retention purposes. For example:
+#### Connection status lines
+
+These lines are printed by default, and are the supported way to monitor the
+health of a tunnel:
+
+| Line | Meaning |
+|---|---|
+| `client: Connecting to ws://...` | A connection attempt to the Private Gateway has started. |
+| `client: Connected (Latency <duration>)` | The tunnel is up and ready to carry traffic. |
+| `client: Disconnected` | The tunnel dropped. A reconnect attempt follows. |
+| `client: Retrying in <duration>...` | Waiting before the next reconnect attempt. |
+| `client: Connection error: <error>` | A connection attempt failed. Includes an `(Attempt: n/max)` counter once retries begin. |
+| `client: Authentication failed` | The Private Gateway rejected the Token. |
+| `client: Config verification failed` | The Private Gateway rejected the requested remotes. |
+| `client: Give up` | `--max-retry-count` was exhausted. The process exits with a non-zero status. |
+| `client: Cancelled` | Shutdown after an interrupt signal. |
+
+For health checks, treat `client: Connected` as the healthy signal, and
+`client: Disconnected` followed by `client: Retrying in ...` as the unhealthy
+one. A quiet log after `client: Connected` means the tunnel is still up:
+`outsystemscc` does not log while idle.
+
+> [!NOTE]
+> In versions 2.1.0 through 2.1.2 these lines were only printed when `-v` was
+> passed, which made a healthy connector look like it had stopped responding.
+> They are printed by default again.
+
+Add `-v` to get chisel's lower-level debug output *in addition to* the lines
+above, such as `Handshaking...`, `Sending config` and `client: tun: SSH
+connected`. `-v` is a troubleshooting aid; it is not needed to observe
+connection status.
+
+#### Retaining the log
+
+You can redirect this output to a file for retention purposes. Because the log
+is written to stderr, redirect stderr as well. For example:
 
     outsystemscc \
-      --header "token: N2YwMDIxZTEtNGUzNS1jNzgzLTRkYjAtYjE2YzRkZGVmNjcy" \
+      --token-file token.txt \
       https://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
-      R:8081:10.0.0.1:8393 \ 
-      >> outsystemscc_log
+      R:8081:10.0.0.1:8393 \
+      >> outsystemscc_log 2>&1
 
 If your organization uses a centralized log management product, see its documentation about how to redirect the log output.
 
@@ -306,7 +341,9 @@ If your organization uses a centralized log management product, see its document
 
         --pid Generate pid file in current working directory
 
-        -v, Enable verbose logging
+        -v, Enable verbose logging. Connection status lines are printed
+        by default; -v adds chisel's debug output on top. See Logging
+        in the Usage section above.
 
         --help, This help text
 
