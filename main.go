@@ -121,6 +121,33 @@ func (f *stringSliceFlag) Set(v string) error {
 	return nil
 }
 
+// newChiselClient builds the chisel client and applies the Cloud Connector
+// log-level policy.
+//
+// chisel gates its two log levels off a single Config.Verbose flag: info-level
+// lines (connection status) and debug-level lines (handshake internals) are
+// both off unless Verbose is set. Since the v2.1.0 chisel upgrade that left
+// outsystemscc silent once connected, which looks like a hang and breaks
+// log-based monitoring of the tunnel.
+//
+// We split the two levels instead: info is always on, so connection status is
+// visible by default, while chisel's debug output stays behind -v. Verbose is
+// forced on so the logger is info-enabled from construction, then Debug is
+// overridden to follow the flag. Setting Debug after NewClient still reaches
+// the loggers chisel forked internally (notably "tun"), because cio.Logger.Fork
+// keeps a pointer back to the parent's flags.
+func newChiselClient(config *chclient.Config, verbose bool) (*chclient.Client, error) {
+	config.Verbose = true
+
+	c, err := chclient.NewClient(config)
+	if err != nil {
+		return nil, err
+	}
+	c.Debug = verbose
+
+	return c, nil
+}
+
 var clientHelp = `
   Usage: outsystemscc [options] <server> [remote] [remote] ...
 
@@ -175,7 +202,11 @@ var clientHelp = `
 
 	--pid Generate pid file in current working directory
 
-    -v, Enable verbose logging
+    -v, Enable verbose logging. Connection status lines (Connecting to,
+    Connected, Disconnected, Retrying in, Authentication failed, Config
+    verification failed and connection errors) are printed by default;
+    -v adds chisel's debug output on top, such as "Handshaking...",
+    "Sending config" and "tun: SSH connected".
 
     --help, This help text
 
@@ -292,11 +323,10 @@ func client(args []string) {
 			"Please specify the correct server URL directly instead.\n")
 	}
 
-	c, err := chclient.NewClient(&config)
+	c, err := newChiselClient(&config, *verbose)
 	if err != nil {
 		log.Fatal(err)
 	}
-	c.Debug = *verbose
 	if *pid {
 		generatePidFile()
 	}
