@@ -180,7 +180,7 @@ var clientHelp = `
     Defaults to unlimited.
 
     --max-retry-interval, Maximum wait time before retrying after a
-    disconnection. Defaults to 5 minutes.
+    disconnection. Defaults to 10 seconds.
 
     --proxy, An optional HTTP CONNECT or SOCKS5 proxy which will be
     used to reach the server. Authentication can be specified
@@ -232,6 +232,16 @@ var clientHelp = `
 
     --http-proxy-dial-timeout, Timeout for dialing the upstream target
     (default 10s).
+
+    --http-proxy-max-conns, Maximum number of concurrent proxy connections
+    (default 1024). Connections over the limit are rejected with
+    503 Service Unavailable.
+
+    --http-proxy-header-timeout, Maximum time to wait for the client to
+    send its CONNECT request (default 10s). Must be at least 1s.
+
+    --http-proxy-idle-timeout, Close a proxied connection after this long
+    with no traffic in either direction (default 15m, set to 0s to disable).
 
   Signals:
     The outsystemscc process is listening for:
