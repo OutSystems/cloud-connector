@@ -13,11 +13,11 @@ require (
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/jpillora/sizestr v1.0.0 // indirect
 	golang.org/x/crypto v0.57.0 // indirect
-	golang.org/x/net v0.59.0 // indirect
+	golang.org/x/net v0.60.0 // indirect
 	golang.org/x/sync v0.23.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
 )
 
 replace github.com/jpillora/chisel => github.com/outsystems/chisel v1.12.0-os.2
 
-go 1.26.6
+go 1.26.9
