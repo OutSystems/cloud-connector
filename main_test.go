@@ -2,7 +2,13 @@ package main
 
 import (
 	"bytes"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"net/http"
+	"os"
+	"regexp"
+	"strconv"
 	"testing"
 
 	"strings"
@@ -195,4 +201,75 @@ func Test_newChiselClient_statusLinesWithoutVerbose(t *testing.T) {
 	if strings.Contains(got, "Handshaking") {
 		t.Errorf("expected debug-level output to stay behind -v, got %q", got)
 	}
+}
+
+// undocumentedFlags are defined in client() but intentionally left out of the help.
+var undocumentedFlags = map[string]bool{"hostname": true}
+
+// definedClientFlags returns the names of the flags registered in client().
+func definedClientFlags(t *testing.T) []string {
+	t.Helper()
+	file, err := parser.ParseFile(token.NewFileSet(), "main.go", nil, 0)
+	if err != nil {
+		t.Fatalf("parsing main.go: %v", err)
+	}
+
+	var names []string
+	ast.Inspect(file, func(n ast.Node) bool {
+		call, ok := n.(*ast.CallExpr)
+		if !ok {
+			return true
+		}
+		sel, ok := call.Fun.(*ast.SelectorExpr)
+		if !ok {
+			return true
+		}
+		if recv, ok := sel.X.(*ast.Ident); !ok || recv.Name != "flags" {
+			return true
+		}
+		for _, arg := range call.Args {
+			if lit, ok := arg.(*ast.BasicLit); ok && lit.Kind == token.STRING {
+				name, err := strconv.Unquote(lit.Value)
+				if err != nil {
+					t.Fatalf("unquoting %s: %v", lit.Value, err)
+				}
+				names = append(names, name)
+				break
+			}
+		}
+		return true
+	})
+	return names
+}
+
+func assertFlagsDocumented(t *testing.T, source, text string) {
+	t.Helper()
+	for _, name := range definedClientFlags(t) {
+		if undocumentedFlags[name] {
+			continue
+		}
+		re := regexp.MustCompile(`(?m)^\s*--?` + regexp.QuoteMeta(name) + `[\s,]`)
+		if !re.MatchString(text) {
+			t.Errorf("flag %q is defined in main.go but missing from %s", name, source)
+		}
+	}
+}
+
+func Test_clientHelp_documentsAllFlags(t *testing.T) {
+	if len(definedClientFlags(t)) == 0 {
+		t.Fatal("found no flags in main.go; the flag discovery in this test is broken")
+	}
+	assertFlagsDocumented(t, "clientHelp", clientHelp)
+}
+
+func Test_readme_documentsAllFlags(t *testing.T) {
+	readme, err := os.ReadFile("README.md")
+	if err != nil {
+		t.Fatalf("reading README.md: %v", err)
+	}
+	section := regexp.MustCompile(`(?s)Detailed options.*?## 5\.`).FindString(string(readme))
+	if section == "" {
+		t.Fatal("could not find the Detailed options section in README.md")
+	}
+	assertFlagsDocumented(t, "the README Detailed options section", section)
 }
