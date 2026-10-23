@@ -14,6 +14,7 @@ OutSystems Cloud Connector
 1. [Install](#install)
     * [Binary](#binary)
     * [Docker](#docker)
+    * [Suggestions for stable tunnels](#stable-tunnels)
     * [Firewall setup](#firewall-setup)
 1. [Usage](#usage)
     * [Passing the Token](#passing-the-token)
@@ -27,7 +28,7 @@ Using the OutSystems Cloud Connector (`outsystemscc`) you can connect the apps r
 
 You run `outsystemscc` on a system in your private network—an on-premise network, a private cloud, or the public cloud—to establish a secure tunnel between your endpoints and the Private Gateway. Your apps can then access the endpoints through the Private Gateway, the server component you activate for each stage of your ODC organization [using the ODC Portal](https://www.outsystems.com/goto/secure-gateways). Common use cases include accessing data through a private REST API service and making requests to internal services (SMTP, SMB, NFS,..)
 
-`outsystemscc` creates a fast TCP/UDP tunnel, with transport over HTTP via WebSockets, secured via SSH using ECDSA with SHA256 keys. The connection is established to either the built-in domain for the stage (for example `<organization>.outsystems.app`) or a custom domain configured for the stage (for example `example.com`). In both cases, the connection is over TLS and always encrypted with a valid X.509 certificate.
+`outsystemscc` creates a fast TCP/UDP tunnel, with transport over HTTP via WebSockets, secured via SSH using ECDSA with SHA256 keys. The connection is established to the Address shown in the ODC Portal, which is on the built-in domain for the stage (for example `<organization>.outsystems.app`). Custom domains configured for a stage are not supported for the Private Gateway, so don't use one in place of the Address. The connection is over TLS and always encrypted with a valid X.509 certificate.
 
 Past that tunnel, `outsystemscc` forwards traffic to each `<remote-host>` as a raw TCP/UDP passthrough, carrying HTTP and TLS content through exactly as the connecting client sends it. An HTTP `Host` header or a TLS Server Name Indication (SNI) reaches `<remote-host>` unchanged. Because `outsystemscc` treats `<remote-host>` as an opaque TCP/UDP endpoint, `<remote-host>` can itself be a relay rather than the final service: point it at an intermediary that terminates TLS or presents a different hostname when the real destination requires that.
 
@@ -85,6 +86,44 @@ The `-d` flag runs the Docker container in detached mode, setting it to run in t
 If you're running the container on a runtime where you need to specify the command line or override the entrypoint (for example on Azure Container Instances or AWS Fargate):
 
     docker run --rm -it --entrypoint /app/outsystemscc ghcr.io/outsystems/outsystemscc --help
+
+### <a name="stable-tunnels"></a> Suggestions for stable tunnels
+
+The Cloud Connector tunnel is a long-lived WebSocket connection that can carry sustained, high-throughput traffic. Between your host and the Private Gateway it crosses several network layers (Docker networking, corporate firewalls, proxies), and each layer applies its own idle timeouts. The suggestions below are not required, but they can help reduce dropped connections. Whether they help depends on your network, so try them in a non-production stage first and keep what works for you.
+
+**Consider running the container on the host network**
+
+Docker's default bridge network adds extra layers (NAT and connection tracking) between the container and your network. For long-lived connections such as the tunnel, those layers can contribute to dropped connections. You may want to run the container with `--network host` instead:
+
+    docker run -d \
+      --name outsystemscc \
+      --network host \
+      --restart=on-failure:3 \
+      ghcr.io/outsystems/outsystemscc:2.0.11 \
+      --token-file /etc/secrets/token \
+      https://organization.outsystems.app/sg_6c23a5b4-b718-4634-a503-f22aed17d4e7 \
+      R:8081:192.168.0.3:8393 --keepalive 10s
+
+> :information_source: Cloud Connector only makes outbound connections, so you don't need to publish any ports when using the host network.
+
+**Consider a shorter keepalive interval**
+
+The tunnel traverses layers with independent idle timeouts. Corporate firewalls often use idle timeouts in the range of 15 to 30 seconds, and Linux connection tracking can be similar. With the default `--keepalive` of `25s`, a keepalive may arrive after one of these timeouts has already expired. If you see unexplained disconnects, you may want to try `--keepalive 10s`. See [Detailed options](#detailed-options) for the full description of the option.
+
+**Consider pinning the image version**
+
+Using the same specific image tag in all your stages (for example `ghcr.io/outsystems/outsystemscc:2.0.11` rather than `:latest`) keeps behavior consistent across stages and makes troubleshooting easier. See the production recommendation in [Docker](#docker) above.
+
+**Consider tuning the TCP buffers on the host**
+
+Increasing how much data the Linux TCP stack may buffer in memory can improve the stability and throughput of tunnels, and their resilience to drops. For example, on the host that runs Docker:
+
+    sysctl -w net.core.rmem_max=134217728
+    sysctl -w net.core.wmem_max=134217728
+    sysctl -w net.ipv4.tcp_rmem='4096 87380 134217728'
+    sysctl -w net.ipv4.tcp_wmem='4096 65536 134217728'
+
+These changes are lost on reboot. To keep them, you can add the same settings to `/etc/sysctl.conf` (without the `sysctl -w` prefix), for example `net.core.rmem_max=134217728`. These values raise the maximum memory the TCP stack may use per connection, so consider whether they suit the other workloads on the host and agree them with whoever administers it.
 
 ### <a name="firewall-setup"></a> Firewall setup
 
@@ -315,7 +354,9 @@ If your organization uses a centralized log management product, see its document
         transport is HTTP, in many instances we'll be traversing through
         proxies, often these proxies will close idle connections. You must
         specify a time with a unit, for example '5s' or '2m'. Defaults
-        to '25s' (set to 0s to disable).
+        to '25s' (set to 0s to disable). If you see unexplained
+        disconnects, a shorter value such as '10s' may help; see
+        Suggestions for stable tunnels in the Install section above.
 
         --max-retry-count, Maximum number of times to retry before exiting.
         Defaults to unlimited.
